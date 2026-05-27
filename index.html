@@ -4,15 +4,17 @@
   <meta charset="UTF-8">
   <title>2026 OKR & KPI Dashboard</title>
   <style>
-    body { font-family: Arial, sans-serif; background: #f4f6f9; color: #333; }
-    nav { background: #0a2a66; padding: 10px; color: white; font-weight: bold; }
-    table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+    body { font-family: Arial, sans-serif; background: #f4f6f9; color: #333; margin: 0; }
+    nav { background: #0a2a66; padding: 15px; color: white; font-weight: bold; font-size: 18px; }
+    table { width: 100%; border-collapse: collapse; margin-top: 20px; background: #fff; }
     th, td { border: 1px solid #ccc; padding: 8px; text-align: left; }
     th { background: #0a2a66; color: white; }
     .ontrack { background: #d4edda; }
     .offtrack { background: #f8d7da; }
     .pending { background: #e2e3e5; }
-    .analysis { margin-top: 30px; padding: 15px; background: #fff; border: 1px solid #ccc; }
+    .analysis { margin: 30px; padding: 15px; background: #fff; border: 1px solid #ccc; }
+    label { margin-left: 20px; font-weight: bold; }
+    select { margin-left: 10px; padding: 5px; }
   </style>
 </head>
 <body>
@@ -32,10 +34,13 @@
       <tr>
         <th>Team</th>
         <th>OKR</th>
+        <th>Key Result</th>
         <th>Owner</th>
-        <th>Target</th>
-        <th>Actual</th>
-        <th>Status</th>
+        <th>2026 Target</th>
+        <th>YTD Target</th>
+        <th>Total Actual</th>
+        <th>YTD KPI Status</th>
+        <th>Annual KPI Status</th>
       </tr>
     </thead>
     <tbody></tbody>
@@ -46,9 +51,10 @@
     <ul id="analysisList"></ul>
   </div>
 
-  <!-- PapaParse library -->
+  <!-- PapaParse library for CSV parsing -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
   <script>
+    // Replace with your published CSV link from Google Sheets
     const csvUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRsw0BSUhlsr311bkTGLoFzZLIdVuUNCJ0TN5pZZIAo68ynbcwvig2k83epphLo0-94lYAChOm9UnJM/pub?gid=1231770526&single=true&output=csv";
 
     async function loadData() {
@@ -64,24 +70,32 @@
           const analysisList = document.querySelector("#analysisList");
 
           data.forEach(row => {
+            if (!row.Team) return; // skip empty rows
+
             const tr = document.createElement("tr");
-            const statusClass = row.Status ? row.Status.toLowerCase().replace(" ", "") : "";
+            let statusClass = "";
+            if (row["YTD KPI Status"] && row["YTD KPI Status"].includes("On-track")) statusClass = "ontrack";
+            else if (row["YTD KPI Status"] && row["YTD KPI Status"].includes("Off-track")) statusClass = "offtrack";
+            else statusClass = "pending";
             tr.className = statusClass;
 
             tr.innerHTML = `
               <td>${row.Team || ""}</td>
               <td>${row.OKR || ""}</td>
+              <td>${row["Key Result"] || ""}</td>
               <td>${row.Owner || ""}</td>
-              <td>${row.Target || ""}</td>
-              <td>${row.Actual || ""}</td>
-              <td>${row.Status || ""}</td>
+              <td>${row["2026 Target"] || ""}</td>
+              <td>${row["YTD Target"] || ""}</td>
+              <td>${row["Total Actual"] || ""}</td>
+              <td>${row["YTD KPI Status"] || ""}</td>
+              <td>${row["Annual KPI Status"] || ""}</td>
             `;
             tbody.appendChild(tr);
 
-            // Simple analysis
-            if (row.Status === "Off-track") {
+            // Analysis logic: flag off-track KPIs
+            if (row["YTD KPI Status"] && row["YTD KPI Status"].includes("Off-track")) {
               const li = document.createElement("li");
-              li.textContent = `${row.Team} - ${row.OKR} is off-track (Actual: ${row.Actual}, Target: ${row.Target}).`;
+              li.textContent = `${row.Team} - ${row.OKR} is off-track (Actual: ${row["Total Actual"]}, Target: ${row["2026 Target"]}).`;
               analysisList.appendChild(li);
             }
           });
