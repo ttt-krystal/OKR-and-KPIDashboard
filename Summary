@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>2026 OKR & KPI Dashboard</title>
+  <style>
+    body { font-family: Arial, sans-serif; background: #f4f6f9; color: #333; }
+    nav { background: #0a2a66; padding: 10px; color: white; font-weight: bold; }
+    table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+    th, td { border: 1px solid #ccc; padding: 8px; text-align: left; }
+    th { background: #0a2a66; color: white; }
+    .ontrack { background: #d4edda; }
+    .offtrack { background: #f8d7da; }
+    .pending { background: #e2e3e5; }
+    .analysis { margin-top: 30px; padding: 15px; background: #fff; border: 1px solid #ccc; }
+  </style>
+</head>
+<body>
+  <nav>📊 2026 OKR & KPI Dashboard</nav>
+
+  <label for="teamFilter">Filter by Team:</label>
+  <select id="teamFilter">
+    <option value="all">All</option>
+    <option value="Sales">Sales</option>
+    <option value="Marketing">Marketing</option>
+    <option value="Product">Product</option>
+    <option value="Operations">Operations</option>
+  </select>
+
+  <table id="summaryTable">
+    <thead>
+      <tr>
+        <th>Team</th>
+        <th>OKR</th>
+        <th>Owner</th>
+        <th>Target</th>
+        <th>Actual</th>
+        <th>Status</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+
+  <div class="analysis" id="analysisSection">
+    <h3>Analysis</h3>
+    <ul id="analysisList"></ul>
+  </div>
+
+  <script>
+    const csvUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRsw0BSUhlsr311bkTGLoFzZLIdVuUNCJ0TN5pZZIAo68ynbcwvig2k83epphLo0-94lYAChOm9UnJM/pub?gid=1231770526&single=true&output=csv";
+
+    async function loadData() {
+      const response = await fetch(csvUrl);
+      const text = await response.text();
+      const rows = text.split("\n").map(r => r.split(","));
+
+      const tbody = document.querySelector("#summaryTable tbody");
+      const analysisList = document.querySelector("#analysisList");
+
+      rows.slice(1).forEach(row => {
+        const [team, okr, owner, target, actual, status] = row;
+        if (!team) return;
+
+        const tr = document.createElement("tr");
+        tr.className = status.toLowerCase();
+
+        tr.innerHTML = `
+          <td>${team}</td>
+          <td>${okr}</td>
+          <td>${owner}</td>
+          <td>${target}</td>
+          <td>${actual}</td>
+          <td>${status}</td>
+        `;
+        tbody.appendChild(tr);
+
+        // Simple analysis logic
+        if (status === "Off-track") {
+          const li = document.createElement("li");
+          li.textContent = `${team} - ${okr} is off-track (Actual: ${actual}, Target: ${target}).`;
+          analysisList.appendChild(li);
+        }
+      });
+    }
+
+    // Filter functionality
+    document.getElementById("teamFilter").addEventListener("change", function() {
+      const value = this.value;
+      const rows = document.querySelectorAll("#summaryTable tbody tr");
+      rows.forEach(r => {
+        if (value === "all" || r.cells[0].textContent === value) {
+          r.style.display = "";
+        } else {
+          r.style.display = "none";
+        }
+      });
+    });
+
+    loadData();
+  </script>
+</body>
+</html>
