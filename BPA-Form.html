@@ -11,26 +11,26 @@
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     :root {
-      --bg:           #f0f2ff;
-      --surface:      #ffffff;
-      --border:       #dde1f0;
-      --text:         #1a1d2e;
-      --muted:        #6b7280;
-      --label:        #2d3250;
-      --accent:       #4f46e5;
+      --bg:            #f0f2ff;
+      --surface:       #ffffff;
+      --border:        #dde1f0;
+      --text:          #1a1d2e;
+      --muted:         #6b7280;
+      --label:         #2d3250;
+      --accent:        #4f46e5;
       --accent-light: #ede9fe;
-      --accent2:      #0ea5e9;
+      --accent2:       #0ea5e9;
       --accent2-light:#e0f2fe;
-      --green:        #059669;
+      --green:         #059669;
       --green-light:  #d1fae5;
-      --amber:        #d97706;
+      --amber:         #d97706;
       --amber-light:  #fef3c7;
-      --orange:       #ea580c;
+      --orange:        #ea580c;
       --orange-light: #ffedd5;
-      --red:          #dc2626;
-      --red-light:    #fee2e2;
-      --radius:       10px;
-      --font:         'Plus Jakarta Sans', sans-serif;
+      --red:           #dc2626;
+      --red-light:     #fee2e2;
+      --radius:        10px;
+      --font:          'Plus Jakarta Sans', sans-serif;
     }
 
     body {
@@ -161,7 +161,7 @@
   <div class="wrapper">
     <div class="form-header">
       <div class="badge">Ops · Non-project</div>
-      <h1>Continuity Request Form</h1>
+      <h1>Backend & Pipeline Assurance Request Form</h1>
       <p>For one-time debugs, troubleshoots, or ad-hoc tasks outside of active projects.</p>
     </div>
 
@@ -259,131 +259,172 @@
   <div class="toast" id="toast"></div>
 
   <script>
-    const SCRIPT_URL = 'YOUR_APPS_SCRIPT_WEB_APP_URL_HERE';
+    // Paste your Google Apps Script Web App URL Deployment String here
+    const WEB_APP_URL = 'https://script.google.com/a/macros/treetotub.com/s/AKfycbylGwwwuZdkfbwjRb3XJDUmKC3-b0F-uM0WTNIOyhB2t5afsMnZSg1TAjxkNp-4Su9F9g/exec';
 
-    const form = document.getElementById('requestForm');
-    const submitBtn = document.getElementById('submitBtn');
-    const toast = document.getElementById('toast');
+    // Track chosen multi-file component objects
     let selectedFiles = [];
 
-    document.querySelectorAll('.pills').forEach(group => {
-      group.querySelectorAll('.pill').forEach(pill => {
+    // --- Interactive Visual Pill Logic Configuration ---
+    setupPillGroup('pills-requestType', 'requestType', 'data-rtype');
+    setupPillGroup('pills-priority', 'priority', 'data-priority');
+
+    function setupPillGroup(containerId, hiddenInputId, datasetAttribute) {
+      const container = document.getElementById(containerId);
+      const hiddenInput = document.getElementById(hiddenInputId);
+      const pills = container.querySelectorAll('.pill');
+
+      pills.forEach(pill => {
         pill.addEventListener('click', () => {
-          group.querySelectorAll('.pill').forEach(p => p.classList.remove('selected'));
+          pills.forEach(p => p.classList.remove('selected'));
           pill.classList.add('selected');
-          const hiddenId = group.id.replace('pills-', '');
-          document.getElementById(hiddenId).value = pill.dataset.value;
-          document.getElementById('field-' + hiddenId)?.classList.remove('invalid');
+          hiddenInput.value = pill.getAttribute('data-value');
+          // Instantly clear field validation error upon selection
+          pill.closest('.field').classList.remove('invalid');
         });
       });
-    });
+    }
 
+    // --- File Attachment Control Logic ---
     const fileInput = document.getElementById('fileInput');
-    const dropzone  = document.getElementById('dropzone');
-    const fileList  = document.getElementById('fileList');
+    const dropzone = document.getElementById('dropzone');
+    const fileListElement = document.getElementById('fileList');
 
-    fileInput.addEventListener('change', () => handleFiles(fileInput.files));
-    dropzone.addEventListener('dragover',  e => { e.preventDefault(); dropzone.classList.add('drag-over'); });
+    fileInput.addEventListener('change', handleFileSelections);
+    dropzone.addEventListener('dragover', (e) => { e.preventDefault(); dropzone.classList.add('drag-over'); });
     dropzone.addEventListener('dragleave', () => dropzone.classList.remove('drag-over'));
-    dropzone.addEventListener('drop', e => {
-      e.preventDefault(); dropzone.classList.remove('drag-over');
-      handleFiles(e.dataTransfer.files);
-    });
+    dropzone.addEventListener('drop', (e) => { e.preventDefault(); dropzone.classList.remove('drag-over'); });
 
-    function handleFiles(files) {
-      Array.from(files).forEach(file => {
-        if (file.size > 10 * 1024 * 1024) { showToast(`"${file.name}" exceeds 10 MB.`, 'error'); return; }
-        if (!selectedFiles.find(f => f.name === file.name && f.size === file.size)) selectedFiles.push(file);
+    function handleFileSelections(e) {
+      const files = Array.from(e.target.files);
+      files.forEach(file => {
+        // Stop duplicates based on file descriptor identity
+        if (!selectedFiles.some(f => f.name === file.name && f.size === file.size)) {
+          selectedFiles.push(file);
+        }
       });
       renderFileList();
     }
 
     function renderFileList() {
-      fileList.innerHTML = '';
-      selectedFiles.forEach((file, i) => {
-        const item = document.createElement('div');
-        item.className = 'file-item';
-        item.innerHTML = `<span class="fi-name">${file.name}</span><button type="button" class="fi-remove" data-i="${i}">×</button>`;
-        fileList.appendChild(item);
-      });
-      fileList.querySelectorAll('.fi-remove').forEach(btn => {
-        btn.addEventListener('click', () => { selectedFiles.splice(+btn.dataset.i, 1); renderFileList(); });
+      fileListElement.innerHTML = '';
+      selectedFiles.forEach((file, index) => {
+        const sizeInKB = (file.size / 1024).toFixed(1);
+        fileListElement.innerHTML += `
+          <div class="file-item">
+            <span class="fi-name">${file.name}</span>
+            <span class="fi-size">(${sizeInKB} KB)</span>
+            <button type="button" class="fi-remove" onclick="removeSelectedFile(${index})">&times;</button>
+          </div>
+        `;
       });
     }
 
-    const requiredFields = [
-      { id: 'name',        field: 'field-name' },
-      { id: 'team',        field: 'field-team' },
-      { id: 'requestType', field: 'field-requestType' },
-      { id: 'system',      field: 'field-system' },
-      { id: 'priority',    field: 'field-priority' },
-      { id: 'neededBy',    field: 'field-neededBy' },
-      { id: 'description', field: 'field-description' },
-    ];
+    window.removeSelectedFile = function(index) {
+      selectedFiles.splice(index, 1);
+      renderFileList();
+    };
 
-    function validateForm() {
-      let valid = true;
-      requiredFields.forEach(({ id, field }) => {
-        if (!document.getElementById(id).value.trim()) {
-          document.getElementById(field).classList.add('invalid');
-          valid = false;
+    // --- Form Validation and Submission Engine ---
+    const form = document.getElementById('requestForm');
+    const submitBtn = document.getElementById('submitBtn');
+
+    form.addEventListener('submit', async function(e) {
+      e.preventDefault();
+      
+      // Clean previous invalid layout flags
+      document.querySelectorAll('.field').forEach(f => f.classList.remove('invalid'));
+
+      let isValid = true;
+      const requiredInputs = [
+        { id: 'name', fieldId: 'field-name' },
+        { id: 'team', fieldId: 'field-team' },
+        { id: 'requestType', fieldId: 'field-requestType' },
+        { id: 'system', fieldId: 'field-system' },
+        { id: 'priority', fieldId: 'field-priority' },
+        { id: 'neededBy', fieldId: 'field-neededBy' },
+        { id: 'description', fieldId: 'field-description' }
+      ];
+
+      requiredInputs.forEach(item => {
+        const element = document.getElementById(item.id);
+        if (!element || !element.value.trim()) {
+          document.getElementById(item.fieldId).classList.add('invalid');
+          isValid = false;
         }
       });
-      return valid;
-    }
 
-    form.addEventListener('submit', async e => {
-      e.preventDefault();
-      if (!validateForm()) { showToast('Please fill in all required fields.', 'error'); return; }
+      if (!isValid) {
+        showToast('Please fill in all required fields.', true);
+        return;
+      }
 
+      // Enter loading state state
       submitBtn.disabled = true;
       submitBtn.classList.add('loading');
+      submitBtn.querySelector('.btn-text').innerText = 'Transmitting Data...';
+
+      // Parse uploaded files into safe binary array objects
+      let uploadedFilePayload = null;
+      if (selectedFiles.length > 0) {
+        const file = selectedFiles[0]; // Upgraded payload accepts primary file attachment loop directly
+        const base64 = await new Promise((resolve) => {
+          const reader = new FileReader();
+          reader.onload = () => resolve(reader.result.split(',')[1]);
+          reader.readAsDataURL(file);
+        });
+        uploadedFilePayload = { bytes: base64, name: file.name, type: file.type };
+      }
+
+      const payload = {
+        action: "addRequest",
+        name: document.getElementById('name').value,
+        department: document.getElementById('team').value,
+        requestType: document.getElementById('requestType').value,
+        system: document.getElementById('system').value,
+        priority: document.getElementById('priority').value,
+        neededBy: document.getElementById('neededBy').value,
+        description: document.getElementById('description').value,
+        stepsTried: document.getElementById('stepsTried').value,
+        file: uploadedFilePayload
+      };
 
       try {
-        const attachments = await Promise.all(selectedFiles.map(fileToBase64));
-        const payload = {
-          name:        document.getElementById('name').value.trim(),
-          team:        document.getElementById('team').value.trim(),
-          requestType: document.getElementById('requestType').value,
-          system:      document.getElementById('system').value.trim(),
-          priority:    document.getElementById('priority').value,
-          neededBy:    document.getElementById('neededBy').value,
-          description: document.getElementById('description').value.trim(),
-          stepsTried:  document.getElementById('stepsTried').value.trim(),
-          attachments,
-        };
-
-        await fetch(SCRIPT_URL, { 
-          method: 'POST', 
-          mode: 'no-cors', 
-          headers: { 'Content-Type': 'text/plain' }, 
-          body: JSON.stringify(payload) 
+        await fetch(WEB_APP_URL, {
+          method: 'POST',
+          mode: 'no-cors',
+          headers: { 'Content-Type': 'text/plain' },
+          body: JSON.stringify(payload)
         });
 
-        showToast('✓ Request submitted successfully!');
-        form.reset();
-        document.querySelectorAll('.pill').forEach(p => p.classList.remove('selected'));
-        selectedFiles = []; renderFileList();
-      } catch (err) {
-        showToast('Submission failed.', 'error');
-      } finally {
+        showToast('Transmission complete! Redirecting...');
+        setTimeout(() => {
+          window.location.href = 'thankyou.html';
+        }, 600);
+
+      } catch (error) {
+        console.error('Transmission failure logged:', error);
+        showToast('Pipeline interrupted. Check connection.', true);
         submitBtn.disabled = false;
         submitBtn.classList.remove('loading');
+        submitBtn.querySelector('.btn-text').innerText = 'Submit request →';
       }
     });
 
-    function fileToBase64(file) {
-      return new Promise((resolve, reject) => {
-        const r = new FileReader();
-        r.onload = () => resolve({ name: file.name, type: file.type, data: r.result.split(',')[1] });
-        r.onerror = reject;
-        r.readAsDataURL(file);
-      });
-    }
+    // Reset layout fields manually
+    document.getElementById('resetBtn').addEventListener('click', () => {
+      form.reset();
+      selectedFiles = [];
+      renderFileList();
+      document.querySelectorAll('.pill').forEach(p => p.classList.remove('selected'));
+      document.querySelectorAll('.field').forEach(f => f.classList.remove('invalid'));
+    });
 
-    function showToast(msg, type = 'success') {
-      toast.textContent = msg; toast.className = `toast ${type} show`;
-      setTimeout(() => toast.classList.remove('show'), 4000);
+    function showToast(msg, isError = false) {
+      const toast = document.getElementById('toast');
+      toast.innerText = msg;
+      toast.className = isError ? 'toast show error' : 'toast show';
+      setTimeout(() => { toast.classList.remove('show'); }, 3000);
     }
   </script>
 </body>
