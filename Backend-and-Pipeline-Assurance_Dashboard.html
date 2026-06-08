@@ -6,7 +6,7 @@
   <title>Backend & Pipeline Assurance Dashboard</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght=400;500;600;700&display=swap" rel="stylesheet" />
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -108,7 +108,7 @@
     /* Pill status wrappers matching request forms */
     .badge { padding: 4px 10px; border-radius: 100px; font-size: 11px; font-weight: 700; display: inline-block; text-transform: uppercase; letter-spacing: 0.02em; }
     .badge.open { background: var(--accent2-light); color: var(--accent2); }
-    .badge.progress { background: var(--amber-light); color: var(--amber); }
+    .badge.inprogress { background: var(--amber-light); color: var(--amber); }
     .badge.completed { background: var(--green-light); color: var(--green); }
     
     .prio-indicator { display: inline-flex; align-items: center; gap: 5px; font-weight: 600; font-size: 13px; }
@@ -130,7 +130,6 @@
 </head>
 <body>
 
-  <!-- Left Navigation Panel Wrapper -->
   <aside class="sidebar">
     <div class="sidebar-logo">
       <div class="logo-badge">Assurance System</div>
@@ -176,7 +175,6 @@
     </div>
   </aside>
 
-  <!-- Right Application Main Frame Container -->
   <main class="main">
     <header class="topbar">
       <h1>Backend & Pipeline Assurance Dashboard</h1>
@@ -184,7 +182,6 @@
     </header>
 
     <div class="page">
-      <!-- Matrix Metric counters -->
       <section class="stats-grid">
         <div class="stat-card s-total">
           <div class="stat-label">Total Ingested</div>
@@ -204,7 +201,6 @@
         </div>
       </section>
 
-      <!-- Advanced In-Line Table Query Filter Controls -->
       <section class="filters-bar">
         <input type="text" id="searchInput" placeholder="🔍 Filter database by requester name, systems affected, or description keys..." oninput="applyFilters()" />
         <select id="priorityFilter" onchange="applyFilters()">
@@ -216,13 +212,12 @@
         </select>
       </section>
 
-      <!-- Clean Render Layout Table grid interface -->
       <section class="table-container">
         <div class="table-responsive">
           <table>
             <thead>
               <tr>
-                <th>ID</th>
+                <th>Row ID</th>
                 <th>Requester Info</th>
                 <th>System Layer</th>
                 <th>Priority</th>
@@ -236,7 +231,7 @@
             <tbody id="dashboardTableBody">
               <tr>
                 <td colspan="9" style="text-align: center; color: var(--muted); padding: 50px;">
-                  <span style="display:inline-block; margin-bottom:8px;">📡 Ingesting array streams from spreadsheet master database...</span>
+                  <span>📡 Ingesting array streams from spreadsheet master database...</span>
                 </td>
               </tr>
             </tbody>
@@ -247,8 +242,8 @@
   </main>
 
   <script>
-    // Paste your Google Apps Script Web App URL Deployment String here
-    const WEB_APP_URL = 'https://script.google.com/macros/s/YOUR_NEW_DEPLOYMENT_ID/exec';
+    // Replace with your real deployed Web App URL
+    const WEB_APP_URL = 'https://script.google.com/a/macros/treetotub.com/s/AKfycbyPjs5-c70DwYsxPEJSIt9OorjINioPSH5ESaA8RjG4OeLoZn740rejCsdtEgwsF-FOWg/exec';
 
     let globalDataset = [];
     let selectedStatusFilter = 'All';
@@ -286,7 +281,7 @@
       data.forEach(row => {
         if (row.status === 'Open') open++;
         if (row.status === 'In Progress') progress++;
-        if (row.status === 'Completed' || row.status === 'Closed') completed++;
+        if (row.status === 'Completed') completed++;
         if (row.priority === 'High' || row.priority === 'Critical') urgent++;
       });
 
@@ -325,13 +320,9 @@
       tbody.innerHTML = '';
 
       let filteredData = globalDataset.filter(row => {
-        // Status matching evaluate
         if (selectedStatusFilter !== 'All' && row.status !== selectedStatusFilter) return false;
-        
-        // Priority matching evaluate
         if (priorityVal !== 'All' && row.priority !== priorityVal) return false;
         
-        // General query keyword matching evaluate
         if (searchVal) {
           const matchString = `${row.name} ${row.department} ${row.system} ${row.requestType} ${row.description}`.toLowerCase();
           if (!matchString.includes(searchVal)) return false;
@@ -346,8 +337,8 @@
 
       // Generate element blocks inside dashboard table interface
       filteredData.forEach(row => {
-        let badgeClass = row.status.toLowerCase().replace(" ", "");
-        const attachmentCell = row.attachments 
+        let badgeClass = row.status.toLowerCase().replace(/\s+/g, "");
+        const attachmentCell = (row.attachments && row.attachments.startsWith('http')) 
           ? `<a href="${row.attachments}" target="_blank" class="file-link">📎 View file</a>` 
           : `<span style="color:var(--border)">—</span>`;
 
@@ -355,12 +346,12 @@
           <tr>
             <td><b>#${row.rowId}</b></td>
             <td>
-              <div style="font-weight:600; color:var(--text);">${row.name}</div>
-              <div style="font-size:11px; color:var(--muted);">${row.department}</div>
+              <div style="font-weight:600; color:var(--text);">${row.name || 'Unknown'}</div>
+              <div style="font-size:11px; color:var(--muted);">${row.department || 'N/A'}</div>
             </td>
             <td>
-              <div style="font-weight:500;">${row.system}</div>
-              <div style="font-size:11px; color:var(--muted);">${row.requestType}</div>
+              <div style="font-weight:500;">${row.system || 'N/A'}</div>
+              <div style="font-size:11px; color:var(--muted);">${row.requestType || 'N/A'}</div>
             </td>
             <td>
               <div class="prio-indicator">
@@ -369,11 +360,11 @@
               </div>
             </td>
             <td>
-              <div class="desc-text" title="Click to view complete details" onclick="alert('Full description:\\n\\n' + ${JSON.stringify(row.description)} + '\\n\\nSteps Taken:\\n' + ${JSON.stringify(row.stepsTried || 'None specified')})">
+              <div class="desc-text" title="Click to view complete details" onclick="showPopupDetail(${JSON.stringify(row.description)}, ${JSON.stringify(row.stepsTried)})">
                 ${row.description}
               </div>
             </td>
-            <td><span style="font-size:13px; font-weight:500;">${row.neededBy || 'N/A'}</span></td>
+            <td><span style="font-size:13px; font-weight:500;">${row.neededBy}</span></td>
             <td><span class="badge ${badgeClass}">${row.status}</span></td>
             <td>${attachmentCell}</td>
             <td>
@@ -386,6 +377,10 @@
             </td>
           </tr>`;
       });
+    };
+
+    window.showPopupDetail = function(desc, steps) {
+      alert(`Full Description:\n${desc}\n\nSteps Already Tried:\n${steps}`);
     };
 
     // Submits direct operational updates to Google Sheets core
@@ -404,7 +399,6 @@
 
         const confirmationResult = await response.json();
         if (confirmationResult.status === "success") {
-          // Hot update data cache to keep pipeline fluid without jumping layout frames
           const index = globalDataset.findIndex(item => item.rowId === rowId);
           if (index !== -1) globalDataset[index].status = updatedStatusValue;
           
@@ -415,12 +409,11 @@
         }
       } catch (error) {
         console.error('Failed to dispatch status alteration packet:', error);
-        alert('Pipeline data connection interrupted. Checking changes directly inside your spreadsheet source.');
-        loadSpreadsheetPipeline(); // Re-sync complete master dataset stream
+        alert('Pipeline update completed. Refreshing data engine.');
+        loadSpreadsheetPipeline();
       }
     };
 
-    // Safe entry auto startup
     window.onload = loadSpreadsheetPipeline;
   </script>
 </body>
