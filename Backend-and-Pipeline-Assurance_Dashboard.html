@@ -11,14 +11,14 @@
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     :root {
-      --bg:            #f0f2ff;
+      --bg:            #f4f6fa;
       --surface:       #ffffff;
-      --border:        #dde1f0;
-      --text:          #1a1d2e;
-      --muted:         #6b7280;
-      --label:         #2d3250;
+      --border:        #e2e8f5;
+      --text:          #1e2238;
+      --muted:         #64748b;
+      --label:         #334155;
       --accent:        #4f46e5;
-      --accent-light:  #ede9fe;
+      --accent-light:  #f0eeff;
       --accent2:       #0ea5e9;
       --accent2-light: #e0f2fe;
       --green:         #059669;
@@ -31,138 +31,191 @@
       --red-light:     #fee2e2;
       --radius:        12px;
       --font:          'Plus Jakarta Sans', sans-serif;
-      --nav-w:         260px;
+      --nav-w:         280px;
     }
 
     body {
       font-family: var(--font); background: var(--bg); color: var(--text);
-      min-height: 100vh; display: flex; font-size: 14px; line-height: 1.6;
+      min-height: 100vh; display: flex; font-size: 13px; line-height: 1.5;
       overflow-x: hidden;
     }
 
-    /* --- Hamburger Sidebar Setup --- */
+    /* --- Sidebar Fixed Hover Overlay Setup --- */
     .sidebar {
-      width: var(--nav-w); min-height: 100vh; background: var(--surface);
-      border-right: 1px solid var(--border); display: flex; flex-direction: column; position: fixed; top: 0; left: 0; z-index: 50;
+      width: var(--nav-w); 
+      height: 100vh; 
+      background: var(--surface);
+      border-right: 1px solid var(--border); 
+      display: flex; 
+      flex-direction: column; 
+      position: fixed; 
+      top: 0; 
+      left: 0; 
+      z-index: 150; /* Sits completely above the main viewport layout */
       padding-bottom: 20px;
-      transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      transform: translateX(0);
+      transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+      box-shadow: 6px 0 24px rgba(26, 29, 46, 0.05);
     }
     
-    /* When collapsed, we pull the menu off-screen */
+    /* Pulls menu off-screen completely when toggled out */
     body.sidebar-collapsed .sidebar {
       transform: translateX(-100%);
     }
 
-    .sidebar-logo { padding: 24px 20px 20px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
-    .sidebar-logo .logo-badge { display: inline-block; background: linear-gradient(135deg, #4f46e5, #7c3aed); color: #fff; font-size: 11px; font-weight: 700; padding: 3px 8px; border-radius: 5px; margin-bottom: 6px; }
-    .sidebar-logo h2 { font-size: 15px; font-weight: 700; color: var(--text); }
+    /* Interactive Bookmark Tab (Anchored to overlay edge) */
+    .sidebar-toggle-tab {
+      position: absolute;
+      top: 24px;
+      right: -32px; 
+      width: 32px;
+      height: 90px;
+      background: var(--accent);
+      color: #ffffff;
+      border: none;
+      border-radius: 0 6px 6px 0;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 3px 2px 8px rgba(79, 70, 229, 0.15);
+      transition: background 0.2s, width 0.1s;
+    }
+    .sidebar-toggle-tab:hover {
+      background: #3b33c8;
+      width: 35px;
+    }
+
+    .tab-text {
+      writing-mode: vertical-rl;
+      text-transform: uppercase;
+      font-size: 9px;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      transform: rotate(180deg);
+      user-select: none;
+    }
+
+    .sidebar-logo { padding: 20px; border-bottom: 1px solid var(--border); }
+    .sidebar-logo .logo-badge { display: inline-block; background: linear-gradient(135deg, #4f46e5, #7c3aed); color: #fff; font-size: 9px; font-weight: 700; padding: 2px 6px; border-radius: 4px; margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.05em; }
+    .sidebar-logo h2 { font-size: 14px; font-weight: 700; color: var(--text); }
     
-    .sidebar-section { padding: 16px 20px 4px; }
-    .sidebar-section-title { font-size: 11px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 10px; }
+    .sidebar-section { padding: 14px 20px 4px; }
+    .sidebar-section-title { font-size: 10px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 6px; }
     
-    .sidebar-nav { padding: 0 12px; display: flex; flex-direction: column; gap: 4px; }
-    .nav-item { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 9px 12px; border-radius: 8px; font-size: 13px; color: var(--muted); border: none; background: none; width: 100%; text-align: left; cursor: pointer; font-weight: 500; transition: all 0.15s; }
-    .nav-item:hover { background: #f5f7ff; color: var(--text); }
+    .sidebar-nav { padding: 0 10px; display: flex; flex-direction: column; gap: 2px; }
+    .nav-item { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 8px 12px; border-radius: 6px; font-size: 12px; color: var(--muted); border: none; background: none; width: 100%; text-align: left; cursor: pointer; font-weight: 500; transition: all 0.12s; }
+    .nav-item:hover { background: #f4f6fa; color: var(--text); }
     .nav-item.active { background: var(--accent-light); color: var(--accent); font-weight: 600; }
-    .nav-badge { background: #eef2f6; color: var(--label); font-size: 11px; font-weight: 700; padding: 2px 6px; border-radius: 6px; }
+    .nav-badge { background: #eef2f6; color: var(--label); font-size: 10px; font-weight: 700; padding: 1px 5px; border-radius: 4px; }
     .nav-item.active .nav-badge { background: var(--accent); color: #fff; }
 
-    .sidebar-card { background: #fafbff; border: 1px solid var(--border); border-radius: 10px; padding: 14px; margin: 16px 16px 0; }
-    .meter-container { background: #eef2f6; height: 6px; border-radius: 100px; width: 100%; margin-top: 8px; overflow: hidden; }
+    .sidebar-card { background: #fafbff; border: 1px solid var(--border); border-radius: 8px; padding: 12px; margin: 16px 12px 0; }
+    .meter-container { background: #eef2f6; height: 5px; border-radius: 100px; width: 100%; margin-top: 6px; overflow: hidden; }
     .meter-fill { background: linear-gradient(90deg, var(--accent2), var(--green)); height: 100%; width: 0%; transition: width 0.4s ease; }
 
-    .engineer-widget { display: flex; align-items: center; gap: 10px; margin-top: auto; padding: 14px; border-top: 1px solid var(--border); margin: auto 12px 0; }
-    .engineer-avatar { width: 32px; height: 32px; background: #e0e7ff; color: var(--accent); font-weight: 700; display: flex; align-items: center; justify-content: center; border-radius: 50%; font-size: 12px; }
-    .engineer-info h4 { font-size: 13px; font-weight: 600; color: var(--text); }
-    .engineer-info p { font-size: 11px; color: var(--green); display: flex; align-items: center; gap: 4px; font-weight: 600; }
-    .engineer-info p::before { content: ''; display: inline-block; width: 6px; height: 6px; background: var(--green); border-radius: 50%; }
+    .engineer-widget { display: flex; align-items: center; gap: 8px; padding: 12px; border-top: 1px solid var(--border); margin: auto 10px 0; }
+    .engineer-avatar { width: 28px; height: 28px; background: #e0e7ff; color: var(--accent); font-weight: 700; display: flex; align-items: center; justify-content: center; border-radius: 50%; font-size: 11px; }
+    .engineer-info h4 { font-size: 12px; font-weight: 600; color: var(--text); }
+    .engineer-info p { font-size: 10px; color: var(--green); display: flex; align-items: center; gap: 4px; font-weight: 600; }
+    .engineer-info p::before { content: ''; display: inline-block; width: 5px; height: 5px; background: var(--green); border-radius: 50%; }
 
-    /* --- Main Frame Component Transitions --- */
+    /* --- Fixed Content Frame Layout Area (Never moves space!) --- */
     .main { 
-      margin-left: var(--nav-w); 
+      margin-left: 0; /* Space reservation disabled completely */
       flex: 1; 
       min-height: 100vh; 
       display: flex; 
       flex-direction: column;
-      transition: margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    }
-    
-    body.sidebar-collapsed .main {
-      margin-left: 0;
+      width: 100%;
+      padding-left: 50px; /* Padding safety buffer for closed tab button sightlines */
     }
 
-    .topbar { background: var(--surface); border-bottom: 1px solid var(--border); padding: 16px 28px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 40; }
-    .topbar-left { display: flex; align-items: center; gap: 16px; }
-    .topbar h1 { font-size: 18px; font-weight: 700; }
-    
-    /* Interactive Hamburger Menu Button Styles */
-    .menu-toggle {
-      background: var(--bg); border: 1px solid var(--border); border-radius: 8px;
-      width: 38px; height: 38px; display: flex; align-items: center; justify-content: center;
-      font-size: 18px; cursor: pointer; color: var(--text); transition: background 0.15s;
-    }
-    .menu-toggle:hover { background: var(--border); }
+    .topbar { background: var(--surface); border-bottom: 1px solid var(--border); padding: 16px 24px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 40; }
+    .topbar h1 { font-size: 16px; font-weight: 700; letter-spacing: -0.01em; }
 
-    .page { padding: 28px; }
+    .page { padding: 24px; max-width: 1650px; width: 100%; margin: 0 auto; }
     
-    /* Stats Layout Grid counters */
-    .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 24px; }
+    /* Metrics Summary Block Layout counters */
+    .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 20px; }
     @media (max-width: 900px) { .stats-grid { grid-template-columns: repeat(2, 1fr); } }
     
-    .stat-card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 18px 20px; position: relative; }
-    .stat-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; }
+    .stat-card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 14px 18px; position: relative; }
+    .stat-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; border-radius: 10px 10px 0 0; }
     .stat-card.s-total::before  { background: var(--accent); }
     .stat-card.s-open::before   { background: var(--accent2); }
     .stat-card.s-urgent::before { background: var(--red); }
     .stat-card.s-done::before   { background: var(--green); }
-    .stat-label { font-size: 11px; font-weight: 700; text-transform: uppercase; color: var(--muted); letter-spacing: 0.05em; }
-    .stat-value { font-size: 28px; font-weight: 700; margin-top: 4px; }
+    .stat-label { font-size: 10px; font-weight: 700; text-transform: uppercase; color: var(--muted); letter-spacing: 0.04em; }
+    .stat-value { font-size: 24px; font-weight: 700; margin-top: 2px; color: var(--text); }
 
-    /* Expanded Filters Architecture Layout Block */
-    .filters-bar { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 16px 20px; margin-bottom: 16px; display: flex; flex-direction: column; gap: 12px; }
-    .filters-row-main { display: flex; gap: 12px; width: 100%; }
-    .filters-row-main input { flex: 1; background: var(--bg); border: 1.5px solid var(--border); border-radius: 8px; padding: 8px 14px; outline: none; font-family: var(--font); font-size: 13px; transition: border-color 0.15s; }
-    .filters-row-main input:focus { border-color: var(--accent); }
+    /* Modular Filtering Architecture Wrapper system */
+    .filters-bar { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 14px; margin-bottom: 16px; display: flex; flex-direction: column; gap: 10px; }
+    .filters-row-main { display: flex; width: 100%; }
+    .filters-row-main input { flex: 1; background: var(--bg); border: 1px solid var(--border); border-radius: 6px; padding: 8px 12px; outline: none; font-family: var(--font); font-size: 12px; transition: border-color 0.12s, background-color 0.12s; }
+    .filters-row-main input:focus { border-color: var(--accent); background: #fff; }
     
-    .filters-row-selectors { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; width: 100%; }
+    .filters-row-selectors { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; width: 100%; }
     @media (max-width: 768px) { .filters-row-selectors { grid-template-columns: repeat(2, 1fr); } }
-    .filters-row-selectors select { background: #fff; border: 1.5px solid var(--border); border-radius: 8px; padding: 8px 12px; font-family: var(--font); font-size: 13px; outline: none; cursor: pointer; width: 100%; }
+    .filters-row-selectors select { background: #fff; border: 1px solid var(--border); border-radius: 6px; padding: 8px 12px; font-family: var(--font); font-size: 12px; font-weight: 500; outline: none; cursor: pointer; width: 100%; transition: border-color 0.12s; color: var(--label); }
     .filters-row-selectors select:focus { border-color: var(--accent); }
 
-    /* Dynamic Data Table Panel Grid */
-    .table-container { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
+    /* Dynamic Data Table Optimization Layout metrics sizes */
+    .table-container { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.02); }
     .table-responsive { overflow-x: auto; width: 100%; }
-    table { width: 100%; border-collapse: collapse; text-align: left; min-width: 1050px; }
-    th, td { padding: 14px 20px; border-bottom: 1px solid var(--border); vertical-align: middle; }
-    th { background: #fafbff; font-weight: 600; color: var(--label); font-size: 13px; }
-    tr:last-child td { border-bottom: none; }
+    table { width: 100%; border-collapse: collapse; text-align: left; min-width: 1150px; table-layout: fixed; }
     
-    .badge { padding: 4px 10px; border-radius: 100px; font-size: 11px; font-weight: 700; display: inline-block; text-transform: uppercase; letter-spacing: 0.02em; }
+    /* Fixed structural column sizing properties allocation metrics map */
+    th:nth-child(1), td:nth-child(1) { width: 75px; }   /* Row ID */
+    th:nth-child(2), td:nth-child(2) { width: 160px; }  /* Requester */
+    th:nth-child(3), td:nth-child(3) { width: 150px; }  /* System Layer */
+    th:nth-child(4), td:nth-child(4) { width: 105px; }  /* Priority */
+    th:nth-child(5), td:nth-child(5) { width: auto; }   /* Issue Details (Fluid layout filler) */
+    th:nth-child(6), td:nth-child(6) { width: 120px; }  /* Target Date */
+    th:nth-child(7), td:nth-child(7) { width: 115px; }  /* Status */
+    th:nth-child(8), td:nth-child(8) { width: 105px; }  /* Attachments */
+    th:nth-child(9), td:nth-child(9) { width: 140px; }  /* Actions option selection frame */
+
+    th, td { padding: 11px 14px; border-bottom: 1px solid var(--border); vertical-align: middle; font-size: 12px; overflow: hidden; text-overflow: ellipsis; }
+    th { background: #fafbff; font-weight: 600; color: var(--label); font-size: 11px; text-transform: uppercase; letter-spacing: 0.03em; }
+    
+    th.sortable { cursor: pointer; user-select: none; position: relative; }
+    th.sortable:hover { background-color: #f4f6fa; color: var(--accent); }
+    th.sortable::after { content: ' ⇅'; font-size: 9px; color: var(--muted); opacity: 0.4; }
+    th.sort-asc::after { content: ' ▲'; color: var(--accent); opacity: 1; }
+    th.sort-desc::after { content: ' ▼'; color: var(--accent); opacity: 1; }
+
+    tr:last-child td { border-bottom: none; }
+    tr:hover td { background-color: rgba(244, 246, 250, 0.5); }
+    
+    .badge { padding: 2px 8px; border-radius: 4px; font-size: 10px; font-weight: 700; display: inline-block; text-transform: uppercase; letter-spacing: 0.01em; }
     .badge.open { background: var(--accent2-light); color: var(--accent2); }
     .badge.inprogress { background: var(--amber-light); color: var(--amber); }
     .badge.completed { background: var(--green-light); color: var(--green); }
     
-    .prio-indicator { display: inline-flex; align-items: center; gap: 5px; font-weight: 600; font-size: 13px; }
-    .prio-dot { width: 8px; height: 8px; border-radius: 50%; }
+    .prio-indicator { display: inline-flex; align-items: center; gap: 5px; font-weight: 600; font-size: 12px; }
+    .prio-dot { width: 6px; height: 6px; border-radius: 50%; }
     .prio-dot.Low { background: var(--green); }
     .prio-dot.Medium { background: var(--amber); }
     .prio-dot.High { background: var(--orange); }
     .prio-dot.Critical { background: var(--red); }
 
-    .action-select { padding: 6px 10px; border-radius: 6px; border: 1.5px solid var(--border); font-family: var(--font); font-size: 12px; outline: none; background: #fff; font-weight: 500; cursor: pointer; }
+    .action-select { padding: 4px 8px; border-radius: 4px; border: 1px solid var(--border); font-family: var(--font); font-size: 11px; outline: none; background: #fff; font-weight: 500; cursor: pointer; width: 100%; }
     .action-select:focus { border-color: var(--accent); }
     
-    .file-link { display: inline-flex; align-items: center; gap: 4px; color: var(--accent); text-decoration: none; font-weight: 600; font-size: 13px; }
+    .file-link { display: inline-flex; align-items: center; gap: 3px; color: var(--accent); text-decoration: none; font-weight: 600; font-size: 12px; }
     .file-link:hover { color: #3b33c8; text-decoration: underline; }
     
-    .desc-text { max-width: 250px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--muted); font-size: 13px; cursor: pointer; }
+    .desc-text { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--muted); font-size: 12px; cursor: pointer; }
     .desc-text:hover { color: var(--text); }
   </style>
 </head>
-<body>
+<body class="sidebar-collapsed"> <aside class="sidebar" id="sidebarMenu">
+    
+    <button class="sidebar-toggle-tab" onclick="toggleSidebar()" title="Toggle Control Panel">
+      <span class="tab-text" id="toggleTabLabel">Show Menu</span>
+    </button>
 
-  <!-- Left Navigation Panel Wrapper (With Hamburger State) -->
-  <aside class="sidebar" id="sidebarMenu">
     <div class="sidebar-logo">
       <div>
         <div class="logo-badge">Assurance System</div>
@@ -194,7 +247,7 @@
 
     <div class="sidebar-card">
       <div class="sidebar-section-title" style="padding:0; margin-bottom: 4px;">Resolution Efficiency</div>
-      <span style="font-size:11px; color:var(--muted)" id="efficiency-label">0% closed</span>
+      <span style="font-size:10px; color:var(--muted)" id="efficiency-label">0% closed</span>
       <div class="meter-container">
         <div class="meter-fill" id="efficiency-meter"></div>
       </div>
@@ -209,18 +262,13 @@
     </div>
   </aside>
 
-  <!-- Right Application Main Frame Container -->
   <main class="main">
     <header class="topbar">
-      <div class="topbar-left">
-        <button class="menu-toggle" onclick="toggleSidebar()" title="Toggle Sidebar Menu">☰</button>
-        <h1>Backend & Pipeline Assurance Dashboard</h1>
-      </div>
-      <span style="font-size: 13px; color: var(--muted);" id="live-clock">Syncing pipeline time...</span>
+      <h1>Backend & Pipeline Assurance Dashboard</h1>
+      <span style="font-size: 12px; color: var(--muted); font-weight: 500;" id="live-clock">Syncing pipeline time...</span>
     </header>
 
     <div class="page">
-      <!-- Matrix Metric counters -->
       <section class="stats-grid">
         <div class="stat-card s-total">
           <div class="stat-label">Total Ingested</div>
@@ -240,13 +288,11 @@
         </div>
       </section>
 
-      <!-- Advanced Multidimensional Query Filter System -->
       <section class="filters-bar">
         <div class="filters-row-main">
-          <input type="text" id="searchInput" placeholder="🔍 Global Keyword Lookup (Filter by requestor name, timestamps, issue descriptions...)" oninput="applyFilters()" />
+          <input type="text" id="searchInput" placeholder="🔍 Search by requestor name, timestamps, custom error domain identifiers..." oninput="applyFilters()" />
         </div>
         <div class="filters-row-selectors">
-          <!-- Priority Filter Selector -->
           <select id="priorityFilter" onchange="applyFilters()">
             <option value="All">All Priorities</option>
             <option value="Low">Low Priority</option>
@@ -255,17 +301,14 @@
             <option value="Critical">Critical Priority</option>
           </select>
           
-          <!-- Department Filter Selector (Populated dynamically) -->
           <select id="departmentFilter" onchange="applyFilters()">
             <option value="All">All Departments</option>
           </select>
           
-          <!-- Systems / Affected Layer Selector (Populated dynamically) -->
           <select id="systemFilter" onchange="applyFilters()">
             <option value="All">All Systems Affected</option>
           </select>
 
-          <!-- Timeline Filter Target Selector -->
           <select id="dateFilter" onchange="applyFilters()">
             <option value="All">All Target Timelines</option>
             <option value="overdue">⚠️ Past Needed By Date</option>
@@ -275,19 +318,18 @@
         </div>
       </section>
 
-      <!-- Clean Render Layout Table Grid Interface -->
       <section class="table-container">
         <div class="table-responsive">
           <table>
             <thead>
               <tr>
-                <th>Row ID</th>
-                <th>Requester Info</th>
-                <th>System Layer</th>
-                <th>Priority</th>
+                <th class="sortable" id="th-rowId" onclick="handleHeaderSort('rowId')">ID</th>
+                <th class="sortable" id="th-name" onclick="handleHeaderSort('name')">Requester</th>
+                <th class="sortable" id="th-system" onclick="handleHeaderSort('system')">System Layer</th>
+                <th class="sortable" id="th-priority" onclick="handleHeaderSort('priority')">Priority</th>
                 <th>Issue Details</th>
-                <th>Target Date</th>
-                <th>Status</th>
+                <th class="sortable" id="th-neededBy" onclick="handleHeaderSort('neededBy')">Target Date</th>
+                <th class="sortable" id="th-status" onclick="handleHeaderSort('status')">Status</th>
                 <th>Attachments</th>
                 <th>Pipeline Action</th>
               </tr>
@@ -306,23 +348,28 @@
   </main>
 
   <script>
-    // Paste your working Google Apps Script Web App URL Deployment String here
     const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbwuv0GXTihBCQiw_DNyZ9cEp9drw0tLcylj-mg3oB0XVV-Rh92ScgV1pLT1Bb1cQD6RQQ/exec';
 
     let globalDataset = [];
     let selectedStatusFilter = 'All';
+    let currentSortColumn = 'rowId';
+    let currentSortDirection = 'asc';
 
-    // Sidebar Toggle Layout Controller
+    // Hover Toggle Interface Manager Controller 
     function toggleSidebar() {
       document.body.classList.toggle('sidebar-collapsed');
+      const label = document.getElementById('toggleTabLabel');
+      if (document.body.classList.contains('sidebar-collapsed')) {
+        label.innerText = "Show Menu";
+      } else {
+        label.innerText = "Hide Menu";
+      }
     }
 
-    // System clock configuration overlay
     setInterval(() => {
-      document.getElementById('live-clock').innerText = `System Time: ${new Date().toLocaleString()}`;
+      document.getElementById('live-clock').innerText = `${new Date().toLocaleString()}`;
     }, 1000);
 
-    // Initial Database Data Stream Pull
     async function loadSpreadsheetPipeline() {
       try {
         const response = await fetch(WEB_APP_URL);
@@ -337,13 +384,12 @@
         document.getElementById('dashboardTableBody').innerHTML = `
           <tr>
             <td colspan="9" style="text-align: center; color: var(--red); padding: 50px; font-weight:600;">
-              Pipeline Interrupted. Ensure your Web App script is deployed with public access permissions to 'Anyone'.
+              Pipeline Interrupted. Verify public execution deployment access scopes configuration settings.
             </td>
           </tr>`;
       }
     }
 
-    // Parses array contents to automatically configure unique options in select filtering tools
     function buildDynamicFilterOptions(data) {
       const departments = new Set();
       const systems = new Set();
@@ -356,19 +402,13 @@
       const deptSelect = document.getElementById('departmentFilter');
       const systemSelect = document.getElementById('systemFilter');
 
-      // Clear existing items but save index zero options
       deptSelect.innerHTML = '<option value="All">All Departments</option>';
       systemSelect.innerHTML = '<option value="All">All Systems Affected</option>';
 
-      departments.forEach(dept => {
-        deptSelect.innerHTML += `<option value="${dept}">${dept}</option>`;
-      });
-      systems.forEach(sys => {
-        systemSelect.innerHTML += `<option value="${sys}">${sys}</option>`;
-      });
+      departments.forEach(dept => { deptSelect.innerHTML += `<option value="${dept}">${dept}</option>`; });
+      systems.forEach(sys => { systemSelect.innerHTML += `<option value="${sys}">${sys}</option>`; });
     }
 
-    // High fidelity metric calculator matrix block
     function calculateMetrics(data) {
       let total = data.length;
       let open = 0, progress = 0, completed = 0, urgent = 0;
@@ -402,7 +442,52 @@
       applyFilters();
     };
 
-    // Advanced Cross-Filter Execution Engine
+    window.handleHeaderSort = function(columnKey) {
+      if (currentSortColumn === columnKey) {
+        currentSortDirection = currentSortDirection === 'asc' ? 'desc' : 'asc';
+      } else {
+        currentSortColumn = columnKey;
+        currentSortDirection = 'asc';
+      }
+      
+      document.querySelectorAll('th.sortable').forEach(th => {
+        th.classList.remove('sort-asc', 'sort-desc');
+      });
+      
+      const activeHeader = document.getElementById(`th-${columnKey}`);
+      if (activeHeader) {
+        activeHeader.classList.add(currentSortDirection === 'asc' ? 'sort-asc' : 'sort-desc');
+      }
+      
+      applyFilters();
+    };
+
+    function sortDatasetItems(array) {
+      const priorityWeight = { 'Critical': 4, 'High': 3, 'Medium': 2, 'Low': 1 };
+      
+      return array.sort((a, b) => {
+        let valA = a[currentSortColumn];
+        let valB = b[currentSortColumn];
+        
+        if (currentSortColumn === 'priority') {
+          valA = priorityWeight[valA] || 0;
+          valB = priorityWeight[valB] || 0;
+        }
+        
+        if (currentSortColumn === 'neededBy') {
+          valA = (valA === '—' || !valA) ? new Date(9999, 11, 31) : new Date(valA);
+          valB = (valB === '—' || !valB) ? new Date(9999, 11, 31) : new Date(valB);
+        }
+
+        if (typeof valA === 'string') valA = valA.toLowerCase();
+        if (typeof valB === 'string') valB = valB.toLowerCase();
+
+        if (valA < valB) return currentSortDirection === 'asc' ? -1 : 1;
+        if (valA > valB) return currentSortDirection === 'asc' ? 1 : -1;
+        return 0;
+      });
+    }
+
     window.applyFilters = function() {
       const searchVal = document.getElementById('searchInput').value.toLowerCase().trim();
       const priorityVal = document.getElementById('priorityFilter').value;
@@ -412,19 +497,14 @@
       const tbody = document.getElementById('dashboardTableBody');
       
       tbody.innerHTML = '';
-
       const now = new Date();
 
       let filteredData = globalDataset.filter(row => {
-        // Sidebar View evaluation
         if (selectedStatusFilter !== 'All' && row.status !== selectedStatusFilter) return false;
-        
-        // Selector parameters match evaluation
         if (priorityVal !== 'All' && row.priority !== priorityVal) return false;
         if (deptVal !== 'All' && row.department !== deptVal) return false;
         if (sysVal !== 'All' && row.system !== sysVal) return false;
         
-        // Date target query evaluations
         if (dateVal !== 'All' && row.neededBy !== "—") {
           const targetDate = new Date(row.neededBy);
           const timeDiff = targetDate - now;
@@ -435,7 +515,6 @@
           if (dateVal === 'future' && daysDiff <= 7) return false;
         }
 
-        // Global key query text lookup block
         if (searchVal) {
           const matchString = `${row.name} ${row.department} ${row.system} ${row.requestType} ${row.description} ${row.timestamp}`.toLowerCase();
           if (!matchString.includes(searchVal)) return false;
@@ -443,28 +522,29 @@
         return true;
       });
 
+      filteredData = sortDatasetItems(filteredData);
+
       if (filteredData.length === 0) {
         tbody.innerHTML = `<tr><td colspan="9" style="text-align: center; color: var(--muted); padding: 40px;">No operational record entries matched your current multi-filter combinations.</td></tr>`;
         return;
       }
 
-      // Generate structural table layouts within frame body
       filteredData.forEach(row => {
         let badgeClass = row.status.toLowerCase().replace(/\s+/g, "");
         const attachmentCell = (row.attachments && row.attachments.startsWith('http')) 
-          ? `<a href="${row.attachments}" target="_blank" class="file-link">📎 View file</a>` 
+          ? `<a href="${row.attachments}" target="_blank" class="file-link">📎 View</a>` 
           : `<span style="color:var(--border)">—</span>`;
 
         tbody.innerHTML += `
           <tr>
             <td><b>#${row.rowId}</b></td>
             <td>
-              <div style="font-weight:600; color:var(--text);">${row.name || 'Unknown'}</div>
-              <div style="font-size:11px; color:var(--muted);">${row.department || 'N/A'}</div>
+              <div style="font-weight:600; color:var(--text); text-overflow:ellipsis; overflow:hidden;">${row.name || 'Unknown'}</div>
+              <div style="font-size:10px; color:var(--muted);">${row.department || 'N/A'}</div>
             </td>
             <td>
-              <div style="font-weight:500;">${row.system || 'N/A'}</div>
-              <div style="font-size:11px; color:var(--muted);">${row.requestType || 'N/A'}</div>
+              <div style="font-weight:500; text-overflow:ellipsis; overflow:hidden;">${row.system || 'N/A'}</div>
+              <div style="font-size:10px; color:var(--muted);">${row.requestType || 'N/A'}</div>
             </td>
             <td>
               <div class="prio-indicator">
@@ -477,15 +557,15 @@
                 ${row.description}
               </div>
             </td>
-            <td><span style="font-size:13px; font-weight:500;">${row.neededBy}</span></td>
+            <td><span style="font-weight:500;">${row.neededBy}</span></td>
             <td><span class="badge ${badgeClass}">${row.status}</span></td>
             <td>${attachmentCell}</td>
             <td>
               <select class="action-select" onchange="patchRowPipelineStatus(${row.rowId}, this.value)">
-                <option value="" disabled selected>Manage Status</option>
-                <option value="Open">Set to: Open</option>
-                <option value="In Progress">Set to: In Progress</option>
-                <option value="Completed">Set to: Completed</option>
+                <option value="" disabled selected>Update</option>
+                <option value="Open">Open</option>
+                <option value="In Progress">In Progress</option>
+                <option value="Completed">Completed</option>
               </select>
             </td>
           </tr>`;
@@ -496,7 +576,6 @@
       alert(`Full Description Details:\n${desc}\n\nSteps Already Tried:\n${steps}`);
     };
 
-    // Submits direct status transformations back to Google Sheet
     window.patchRowPipelineStatus = async function(rowId, updatedStatusValue) {
       if (!updatedStatusValue) return;
 
