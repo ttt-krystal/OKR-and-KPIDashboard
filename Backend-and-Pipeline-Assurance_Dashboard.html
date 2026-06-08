@@ -9,157 +9,419 @@
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
     :root {
-      --bg: #f0f2ff; --surface: #ffffff; --border: #dde1f0; --text: #1a1d2e;
-      --muted: #6b7280; --label: #2d3250; --accent: #4f46e5; --green: #059669;
-      --amber: #d97706; --red: #dc2626; --radius: 12px; --font: 'Plus Jakarta Sans', sans-serif;
+      --bg:            #f0f2ff;
+      --surface:       #ffffff;
+      --border:        #dde1f0;
+      --text:          #1a1d2e;
+      --muted:         #6b7280;
+      --label:         #2d3250;
+      --accent:        #4f46e5;
+      --accent-light:  #ede9fe;
+      --accent2:       #0ea5e9;
+      --accent2-light: #e0f2fe;
+      --green:         #059669;
+      --green-light:   #d1fae5;
+      --amber:         #d97706;
+      --amber-light:   #fef3c7;
+      --orange:        #ea580c;
+      --orange-light:  #ffedd5;
+      --red:           #dc2626;
+      --red-light:     #fee2e2;
+      --radius:        12px;
+      --font:          'Plus Jakarta Sans', sans-serif;
+      --nav-w:         260px;
     }
-    body { font-family: var(--font); background: var(--bg); color: var(--text); padding: 30px; font-size: 14px; }
-    .container { max-width: 1200px; margin: 0 auto; }
-    header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
-    h1 { font-size: 24px; font-weight: 700; }
-    .stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 24px; }
-    .stat-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px; text-align: center; }
-    .stat-label { font-size: 11px; text-transform: uppercase; color: var(--muted); font-weight: 700; }
-    .stat-value { font-size: 32px; font-weight: 700; margin-top: 4px; }
-    .table-container { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); overflow-x: auto; }
-    table { width: 100%; border-collapse: collapse; text-align: left; }
-    th, td { padding: 14px 18px; border-bottom: 1px solid var(--border); }
-    th { background: #fafbff; font-weight: 600; color: var(--label); }
-    .badge { padding: 4px 10px; border-radius: 100px; font-size: 12px; font-weight: 600; display: inline-block; }
-    .badge.open { background: #e0f2fe; color: #0284c7; }
-    .badge.progress { background: #fef3c7; color: #d97706; }
-    .badge.closed { background: #d1fae5; color: #059669; }
-    select { padding: 6px 10px; border-radius: 6px; border: 1px solid var(--border); font-family: var(--font); outline: none; background: #fff; cursor: pointer; }
-    .file-link { color: var(--accent); text-decoration: none; font-weight: 600; }
-    .file-link:hover { text-decoration: underline; }
+
+    body {
+      font-family: var(--font); background: var(--bg); color: var(--text);
+      min-height: 100vh; display: flex; font-size: 14px; line-height: 1.6;
+    }
+
+    /* --- Sidebar Navigation UI --- */
+    .sidebar {
+      width: var(--nav-w); min-height: 100vh; background: var(--surface);
+      border-right: 1px solid var(--border); display: flex; flex-direction: column; position: fixed; top: 0; left: 0; z-index: 50;
+      padding-bottom: 20px;
+    }
+    .sidebar-logo { padding: 24px 20px 20px; border-bottom: 1px solid var(--border); }
+    .sidebar-logo .logo-badge { display: inline-block; background: linear-gradient(135deg, #4f46e5, #7c3aed); color: #fff; font-size: 11px; font-weight: 700; padding: 3px 8px; border-radius: 5px; margin-bottom: 6px; }
+    .sidebar-logo h2 { font-size: 15px; font-weight: 700; color: var(--text); }
+    
+    .sidebar-section { padding: 16px 20px 4px; }
+    .sidebar-section-title { font-size: 11px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 10px; }
+    
+    .sidebar-nav { padding: 0 12px; display: flex; flex-direction: column; gap: 4px; }
+    .nav-item { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 9px 12px; border-radius: 8px; font-size: 13px; color: var(--muted); border: none; background: none; width: 100%; text-align: left; cursor: pointer; font-weight: 500; transition: all 0.15s; }
+    .nav-item:hover { background: #f5f7ff; color: var(--text); }
+    .nav-item.active { background: var(--accent-light); color: var(--accent); font-weight: 600; }
+    .nav-badge { background: #eef2f6; color: var(--label); font-size: 11px; font-weight: 700; padding: 2px 6px; border-radius: 6px; }
+    .nav-item.active .nav-badge { background: var(--accent); color: #fff; }
+
+    /* Meter Widget UI Component */
+    .sidebar-card { background: #fafbff; border: 1px solid var(--border); border-radius: 10px; padding: 14px; margin: 16px 16px 0; }
+    .meter-container { background: #eef2f6; height: 6px; border-radius: 100px; width: 100%; margin-top: 8px; overflow: hidden; }
+    .meter-fill { background: linear-gradient(90deg, var(--accent2), var(--green)); height: 100%; width: 0%; transition: width 0.4s ease; }
+
+    /* Engineer Status Footer Widget */
+    .engineer-widget { display: flex; align-items: center; gap: 10px; margin-top: auto; padding: 14px; border-top: 1px solid var(--border); margin: auto 12px 0; }
+    .engineer-avatar { width: 32px; height: 32px; background: #e0e7ff; color: var(--accent); font-weight: 700; display: flex; align-items: center; justify-content: center; border-radius: 50%; font-size: 12px; }
+    .engineer-info h4 { font-size: 13px; font-weight: 600; color: var(--text); }
+    .engineer-info p { font-size: 11px; color: var(--green); display: flex; align-items: center; gap: 4px; font-weight: 600; }
+    .engineer-info p::before { content: ''; display: inline-block; width: 6px; height: 6px; background: var(--green); border-radius: 50%; }
+
+    /* --- Main App Body Panel Layout --- */
+    .main { margin-left: var(--nav-w); flex: 1; min-height: 100vh; display: flex; flex-direction: column; }
+    .topbar { background: var(--surface); border-bottom: 1px solid var(--border); padding: 16px 28px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 40; }
+    .topbar h1 { font-size: 18px; font-weight: 700; }
+
+    .page { padding: 28px; }
+    
+    /* Stats Layout grid counters */
+    .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 24px; }
+    @media (max-width: 900px) { .stats-grid { grid-template-columns: repeat(2, 1fr); } }
+    
+    .stat-card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 18px 20px; position: relative; }
+    .stat-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; }
+    .stat-card.s-total::before  { background: var(--accent); }
+    .stat-card.s-open::before   { background: var(--accent2); }
+    .stat-card.s-urgent::before { background: var(--red); }
+    .stat-card.s-done::before   { background: var(--green); }
+    .stat-label { font-size: 11px; font-weight: 700; text-transform: uppercase; color: var(--muted); letter-spacing: 0.05em; }
+    .stat-value { font-size: 28px; font-weight: 700; margin-top: 4px; }
+
+    /* Filter Controls Layer */
+    .filters-bar { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 12px 20px; margin-bottom: 16px; display: flex; gap: 12px; align-items: center; }
+    .filters-bar input { flex: 1; background: var(--bg); border: 1.5px solid var(--border); border-radius: 8px; padding: 8px 14px; outline: none; font-family: var(--font); font-size: 13px; transition: border-color 0.15s; }
+    .filters-bar input:focus { border-color: var(--accent); }
+    .filters-bar select { background: #fff; border: 1.5px solid var(--border); border-radius: 8px; padding: 8px 12px; font-family: var(--font); font-size: 13px; outline: none; cursor: pointer; }
+
+    /* Dynamic Data Table Panel Grid */
+    .table-container { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
+    .table-responsive { overflow-x: auto; width: 100%; }
+    table { width: 100%; border-collapse: collapse; text-align: left; min-width: 900px; }
+    th, td { padding: 14px 20px; border-bottom: 1px solid var(--border); vertical-align: middle; }
+    th { background: #fafbff; font-weight: 600; color: var(--label); font-size: 13px; }
+    tr:last-child td { border-bottom: none; }
+    
+    /* Pill status wrappers matching request forms */
+    .badge { padding: 4px 10px; border-radius: 100px; font-size: 11px; font-weight: 700; display: inline-block; text-transform: uppercase; letter-spacing: 0.02em; }
+    .badge.open { background: var(--accent2-light); color: var(--accent2); }
+    .badge.progress { background: var(--amber-light); color: var(--amber); }
+    .badge.completed { background: var(--green-light); color: var(--green); }
+    
+    .prio-indicator { display: inline-flex; align-items: center; gap: 5px; font-weight: 600; font-size: 13px; }
+    .prio-dot { width: 8px; height: 8px; border-radius: 50%; }
+    .prio-dot.Low { background: var(--green); }
+    .prio-dot.Medium { background: var(--amber); }
+    .prio-dot.High { background: var(--orange); }
+    .prio-dot.Critical { background: var(--red); }
+
+    .action-select { padding: 6px 10px; border-radius: 6px; border: 1.5px solid var(--border); font-family: var(--font); font-size: 12px; outline: none; background: #fff; font-weight: 500; cursor: pointer; }
+    .action-select:focus { border-color: var(--accent); }
+    
+    .file-link { display: inline-flex; align-items: center; gap: 4px; color: var(--accent); text-decoration: none; font-weight: 600; font-size: 13px; }
+    .file-link:hover { color: #3b33c8; text-decoration: underline; }
+    
+    .desc-text { max-width: 250px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--muted); font-size: 13px; cursor: pointer; }
+    .desc-text:hover { color: var(--text); }
   </style>
 </head>
 <body>
-  <div class="container">
-    <header>
-      <div>
-        <h1>Operational Continuity Dashboard</h1>
-        <p style="color: var(--muted);">Live task pipeline monitors</p>
+
+  <!-- Left Navigation Panel Wrapper -->
+  <aside class="sidebar">
+    <div class="sidebar-logo">
+      <div class="logo-badge">Assurance System</div>
+      <h2>Pipeline Operations</h2>
+    </div>
+    
+    <div class="sidebar-section">
+      <div class="sidebar-section-title">Views</div>
+    </div>
+    <nav class="sidebar-nav">
+      <button class="nav-item active" onclick="filterByStatus('All', this)">
+        <span>📂 All Requests</span>
+        <span class="nav-badge" id="badge-all">0</span>
+      </button>
+      <button class="nav-item" onclick="filterByStatus('Open', this)">
+        <span>⚡ Open Items</span>
+        <span class="nav-badge" id="badge-open">0</span>
+      </button>
+      <button class="nav-item" onclick="filterByStatus('In Progress', this)">
+        <span>⚙️ In Progress</span>
+        <span class="nav-badge" id="badge-progress">0</span>
+      </button>
+      <button class="nav-item" onclick="filterByStatus('Completed', this)">
+        <span>✅ Completed</span>
+        <span class="nav-badge" id="badge-completed">0</span>
+      </button>
+    </nav>
+
+    <div class="sidebar-card">
+      <div class="sidebar-section-title" style="padding:0; margin-bottom: 4px;">Resolution Efficiency</div>
+      <span style="font-size:11px; color:var(--muted)" id="efficiency-label">0% closed</span>
+      <div class="meter-container">
+        <div class="meter-fill" id="efficiency-meter"></div>
       </div>
+    </div>
+
+    <div class="engineer-widget">
+      <div class="engineer-avatar">OP</div>
+      <div class="engineer-info">
+        <h4>Ops Engineer Panel</h4>
+        <p>System Live</p>
+      </div>
+    </div>
+  </aside>
+
+  <!-- Right Application Main Frame Container -->
+  <main class="main">
+    <header class="topbar">
+      <h1>Backend & Pipeline Assurance Dashboard</h1>
+      <span style="font-size: 13px; color: var(--muted);" id="live-clock">Syncing pipeline time...</span>
     </header>
 
-    <div class="stats-grid">
-      <div class="stat-card" style="border-top: 4px solid var(--accent);">
-        <div class="stat-label">Total Requests</div>
-        <div class="stat-value" id="count-total">0</div>
-      </div>
-      <div class="stat-card" style="border-top: 4px solid var(--amber);">
-        <div class="stat-label">Open Issues</div>
-        <div class="stat-value" id="count-open">0</div>
-      </div>
-      <div class="stat-card" style="border-top: 4px solid var(--green);">
-        <div class="stat-label">Completed Tasks</div>
-        <div class="stat-value" id="count-closed">0</div>
-      </div>
-    </div>
+    <div class="page">
+      <!-- Matrix Metric counters -->
+      <section class="stats-grid">
+        <div class="stat-card s-total">
+          <div class="stat-label">Total Ingested</div>
+          <div class="stat-value" id="stat-total">0</div>
+        </div>
+        <div class="stat-card s-open">
+          <div class="stat-label">Active Open</div>
+          <div class="stat-value" id="stat-open">0</div>
+        </div>
+        <div class="stat-card s-urgent">
+          <div class="stat-label">Critical / High</div>
+          <div class="stat-value" id="stat-urgent">0</div>
+        </div>
+        <div class="stat-card s-done">
+          <div class="stat-label">Resolved Task</div>
+          <div class="stat-value" id="stat-completed">0</div>
+        </div>
+      </section>
 
-    <div class="table-container">
-      <table>
-        <thead>
-          <tr>
-            <th>ID</th>
-            <th>Requester</th>
-            <th>System</th>
-            <th>Priority</th>
-            <th>Needed By</th>
-            <th>Status</th>
-            <th>Attachment</th>
-            <th>Action</th>
-          </tr>
-        </thead>
-        <tbody id="table-body">
-          <tr>
-            <td colspan="8" style="text-align: center; color: var(--muted); padding: 40px;">Syncing data stream pipelines...</td>
-          </tr>
-        </tbody>
-      </table>
+      <!-- Advanced In-Line Table Query Filter Controls -->
+      <section class="filters-bar">
+        <input type="text" id="searchInput" placeholder="🔍 Filter database by requester name, systems affected, or description keys..." oninput="applyFilters()" />
+        <select id="priorityFilter" onchange="applyFilters()">
+          <option value="All">All Priorities</option>
+          <option value="Low">Low Priority</option>
+          <option value="Medium">Medium Priority</option>
+          <option value="High">High Priority</option>
+          <option value="Critical">Critical Priority</option>
+        </select>
+      </section>
+
+      <!-- Clean Render Layout Table grid interface -->
+      <section class="table-container">
+        <div class="table-responsive">
+          <table>
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Requester Info</th>
+                <th>System Layer</th>
+                <th>Priority</th>
+                <th>Issue Details</th>
+                <th>Target Date</th>
+                <th>Status</th>
+                <th>Attachments</th>
+                <th>Pipeline Action</th>
+              </tr>
+            </thead>
+            <tbody id="dashboardTableBody">
+              <tr>
+                <td colspan="9" style="text-align: center; color: var(--muted); padding: 50px;">
+                  <span style="display:inline-block; margin-bottom:8px;">📡 Ingesting array streams from spreadsheet master database...</span>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
     </div>
-  </div>
+  </main>
 
   <script>
+    // Paste your Google Apps Script Web App URL Deployment String here
     const WEB_APP_URL = 'https://script.google.com/macros/s/YOUR_NEW_DEPLOYMENT_ID/exec';
 
-    async function loadDashboardData() {
+    let globalDataset = [];
+    let selectedStatusFilter = 'All';
+
+    // Update system timestamp clock overlay
+    setInterval(() => {
+      document.getElementById('live-clock').innerText = `System Time: ${new Date().toLocaleString()}`;
+    }, 1000);
+
+    // Initial Database Data Stream Pull
+    async function loadSpreadsheetPipeline() {
       try {
-        const res = await fetch(WEB_APP_URL);
-        const data = await res.json();
-        renderTable(data);
-      } catch (err) {
-        console.error("Dashboard ingestion pipeline error:", err);
-        document.getElementById('table-body').innerHTML = `<tr><td colspan="8" style="text-align: center; color: var(--red); padding: 40px;">Failed to load data. Ensure script is deployed correctly.</td></tr>`;
+        const response = await fetch(WEB_APP_URL);
+        if (!response.ok) throw new Error('Network stream breakdown.');
+        globalDataset = await response.json();
+        
+        calculateMetrics(globalDataset);
+        applyFilters();
+      } catch (error) {
+        console.error('Data stream interface error:', error);
+        document.getElementById('dashboardTableBody').innerHTML = `
+          <tr>
+            <td colspan="9" style="text-align: center; color: var(--red); padding: 50px; font-weight:600;">
+              Pipeline Interrupted. Ensure your Web App script is completely deployed as "Anyone".
+            </td>
+          </tr>`;
       }
     }
 
-    function renderTable(rows) {
-      const tbody = document.getElementById('table-body');
+    // High fidelity status array calculator engine
+    function calculateMetrics(data) {
+      let total = data.length;
+      let open = 0, progress = 0, completed = 0, urgent = 0;
+
+      data.forEach(row => {
+        if (row.status === 'Open') open++;
+        if (row.status === 'In Progress') progress++;
+        if (row.status === 'Completed' || row.status === 'Closed') completed++;
+        if (row.priority === 'High' || row.priority === 'Critical') urgent++;
+      });
+
+      // Update structural labels
+      document.getElementById('stat-total').innerText = total;
+      document.getElementById('stat-open').innerText = open;
+      document.getElementById('stat-urgent').innerText = urgent;
+      document.getElementById('stat-completed').innerText = completed;
+
+      // Update sidebar nav contextual counts
+      document.getElementById('badge-all').innerText = total;
+      document.getElementById('badge-open').innerText = open;
+      document.getElementById('badge-progress').innerText = progress;
+      document.getElementById('badge-completed').innerText = completed;
+
+      // Update Resolution Efficiency Meter calculation
+      let efficiencyPercentage = total > 0 ? Math.round((completed / total) * 100) : 0;
+      document.getElementById('efficiency-label').innerText = `${efficiencyPercentage}% resolved`;
+      document.getElementById('efficiency-meter').style.width = `${efficiencyPercentage}%`;
+    }
+
+    // Main side panel navigation handler
+    window.filterByStatus = function(status, element) {
+      document.querySelectorAll('.nav-item').forEach(btn => btn.classList.remove('active'));
+      element.classList.add('active');
+      selectedStatusFilter = status;
+      applyFilters();
+    };
+
+    // Unified live text lookup and filter evaluation layout engine
+    window.applyFilters = function() {
+      const searchVal = document.getElementById('searchInput').value.toLowerCase().trim();
+      const priorityVal = document.getElementById('priorityFilter').value;
+      const tbody = document.getElementById('dashboardTableBody');
+      
       tbody.innerHTML = '';
 
-      if (rows.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="8" style="text-align: center; color: var(--muted); padding: 40px;">No current active operations entries logged.</td></tr>`;
+      let filteredData = globalDataset.filter(row => {
+        // Status matching evaluate
+        if (selectedStatusFilter !== 'All' && row.status !== selectedStatusFilter) return false;
+        
+        // Priority matching evaluate
+        if (priorityVal !== 'All' && row.priority !== priorityVal) return false;
+        
+        // General query keyword matching evaluate
+        if (searchVal) {
+          const matchString = `${row.name} ${row.department} ${row.system} ${row.requestType} ${row.description}`.toLowerCase();
+          if (!matchString.includes(searchVal)) return false;
+        }
+        return true;
+      });
+
+      if (filteredData.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="9" style="text-align: center; color: var(--muted); padding: 40px;">No operational record entries matched your current view query targets.</td></tr>`;
         return;
       }
 
-      let openCount = 0, closedCount = 0;
-
-      rows.forEach(row => {
-        if(row.status === 'Open') openCount++;
-        if(row.status === 'Completed' || row.status === 'Closed') closedCount++;
-
-        let statusClass = 'open';
-        if(row.status === 'In Progress') statusClass = 'progress';
-        if(row.status === 'Completed' || row.status === 'Closed') statusClass = 'closed';
-
-        const fileCell = row.attachments ? `<a href="${row.attachments}" target="_blank" class="file-link">📁 View File</a>` : `<span style="color:var(--muted)">None</span>`;
+      // Generate element blocks inside dashboard table interface
+      filteredData.forEach(row => {
+        let badgeClass = row.status.toLowerCase().replace(" ", "");
+        const attachmentCell = row.attachments 
+          ? `<a href="${row.attachments}" target="_blank" class="file-link">📎 View file</a>` 
+          : `<span style="color:var(--border)">—</span>`;
 
         tbody.innerHTML += `
           <tr>
             <td><b>#${row.rowId}</b></td>
-            <td>${row.name}<br><span style="font-size:11px; color:var(--muted)">${row.department}</span></td>
-            <td>${row.system}<br><span style="font-size:11px; color:var(--muted)">${row.requestType}</span></td>
-            <td><span style="font-weight:600;">${row.priority}</span></td>
-            <td>${row.neededBy || 'N/A'}</td>
-            <td><span class="badge ${statusClass}">${row.status}</span></td>
-            <td>${fileCell}</td>
             <td>
-              <select onchange="updateRowStatus(${row.rowId}, this.value)">
-                <option value="">Update Status...</option>
-                <option value="Open">Open</option>
-                <option value="In Progress">In Progress</option>
-                <option value="Completed">Completed</option>
+              <div style="font-weight:600; color:var(--text);">${row.name}</div>
+              <div style="font-size:11px; color:var(--muted);">${row.department}</div>
+            </td>
+            <td>
+              <div style="font-weight:500;">${row.system}</div>
+              <div style="font-size:11px; color:var(--muted);">${row.requestType}</div>
+            </td>
+            <td>
+              <div class="prio-indicator">
+                <span class="prio-dot ${row.priority}"></span>
+                ${row.priority}
+              </div>
+            </td>
+            <td>
+              <div class="desc-text" title="Click to view complete details" onclick="alert('Full description:\\n\\n' + ${JSON.stringify(row.description)} + '\\n\\nSteps Taken:\\n' + ${JSON.stringify(row.stepsTried || 'None specified')})">
+                ${row.description}
+              </div>
+            </td>
+            <td><span style="font-size:13px; font-weight:500;">${row.neededBy || 'N/A'}</span></td>
+            <td><span class="badge ${badgeClass}">${row.status}</span></td>
+            <td>${attachmentCell}</td>
+            <td>
+              <select class="action-select" onchange="patchRowPipelineStatus(${row.rowId}, this.value)">
+                <option value="" disabled selected>Manage Status</option>
+                <option value="Open">Set to: Open</option>
+                <option value="In Progress">Set to: In Progress</option>
+                <option value="Completed">Set to: Completed</option>
               </select>
             </td>
           </tr>`;
       });
+    };
 
-      document.getElementById('count-total').innerText = rows.length;
-      document.getElementById('count-open').innerText = openCount;
-      document.getElementById('count-closed').innerText = closedCount;
-    }
+    // Submits direct operational updates to Google Sheets core
+    window.patchRowPipelineStatus = async function(rowId, updatedStatusValue) {
+      if (!updatedStatusValue) return;
 
-    async function updateRowStatus(rowId, newStatus) {
-      if(!newStatus) return;
-      
       try {
-        await fetch(WEB_APP_URL, {
+        const response = await fetch(WEB_APP_URL, {
           method: 'POST',
-          body: JSON.stringify({ action: "updateStatus", rowId: rowId, status: newStatus })
+          body: JSON.stringify({
+            action: "updateStatus",
+            rowId: rowId,
+            status: updatedStatusValue
+          })
         });
-        alert(`Row #${rowId} updated to ${newStatus}`);
-        loadDashboardData();
-      } catch (err) {
-        console.error(err);
-        alert('Failed to update status.');
-      }
-    }
 
-    // Run primary load sequence
-    window.onload = loadDashboardData;
+        const confirmationResult = await response.json();
+        if (confirmationResult.status === "success") {
+          // Hot update data cache to keep pipeline fluid without jumping layout frames
+          const index = globalDataset.findIndex(item => item.rowId === rowId);
+          if (index !== -1) globalDataset[index].status = updatedStatusValue;
+          
+          calculateMetrics(globalDataset);
+          applyFilters();
+        } else {
+          alert('Sheet Update rejection logged: ' + confirmationResult.message);
+        }
+      } catch (error) {
+        console.error('Failed to dispatch status alteration packet:', error);
+        alert('Pipeline data connection interrupted. Checking changes directly inside your spreadsheet source.');
+        loadSpreadsheetPipeline(); // Re-sync complete master dataset stream
+      }
+    };
+
+    // Safe entry auto startup
+    window.onload = loadSpreadsheetPipeline;
   </script>
 </body>
 </html>
