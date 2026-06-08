@@ -124,8 +124,8 @@
       color: var(--accent);
       font-weight: 600;
     }
-    .nav-item .nav-icon { font-size: 16px; width: 20px; text-align: center; }
-    .nav-item .nav-badge {
+    .nav-icon { font-size: 16px; width: 20px; text-align: center; }
+    .nav-badge {
       margin-left: auto;
       font-size: 11px;
       font-weight: 700;
@@ -167,11 +167,7 @@
       top: 0;
       z-index: 40;
     }
-    .topbar h1 {
-      font-size: 18px;
-      font-weight: 700;
-      color: var(--text);
-    }
+    .topbar h1 { font-size: 18px; font-weight: 700; color: var(--text); }
     .topbar p { font-size: 13px; color: var(--muted); }
     .topbar-actions { display: flex; gap: 10px; align-items: center; }
 
@@ -195,8 +191,7 @@
     .btn-ghost:hover { border-color: #b0b7d0; }
 
     /* ── page content ── */
-    .page { padding: 28px; display: none; }
-    .page.active { display: block; }
+    .page { padding: 28px; }
 
     /* ── stat cards ── */
     .stats-grid {
@@ -276,63 +271,25 @@
       background-position: right 10px center;
     }
     .filter-select:focus { border-color: var(--accent); }
-
-    .filter-count {
-      font-size: 12px;
-      color: var(--muted);
-      margin-left: auto;
-      white-space: nowrap;
-    }
+    .filter-count { font-size: 12px; color: var(--muted); margin-left: auto; white-space: nowrap; }
 
     /* ── table ── */
-    .table-wrap {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      overflow: hidden;
-    }
+    .table-wrap { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; }
     .table-scroll { overflow-x: auto; }
-
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      font-size: 13px;
-    }
-    thead {
-      background: var(--bg);
-      border-bottom: 1px solid var(--border);
-    }
-    th {
-      padding: 11px 16px;
-      text-align: left;
-      font-size: 11px;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 0.06em;
-      color: var(--muted);
-      white-space: nowrap;
-      cursor: pointer;
-      user-select: none;
-      transition: color 0.15s;
-    }
-    th:hover { color: var(--text); }
-    th .sort-icon { margin-left: 4px; opacity: 0.4; }
-    th.sorted { color: var(--accent); }
-    th.sorted .sort-icon { opacity: 1; }
-
-    tbody tr {
-      border-bottom: 1px solid var(--border);
-      transition: background 0.1s;
-      cursor: pointer;
-    }
+    table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    thead { background: var(--bg); border-bottom: 1px solid var(--border); }
+    th { padding: 11px 16px; text-align: left; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); white-space: nowrap; }
+    tbody tr { border-bottom: 1px solid var(--border); transition: background 0.1s; }
     tbody tr:last-child { border-bottom: none; }
     tbody tr:hover { background: #fafbff; }
+    td { padding: 13px 16px; vertical-align: middle; color: var(--text); }
 
-    td {
-      padding: 13px 16px;
-      vertical-align: middle;
-      color: var(--text);
-    }
+    /* Status Badges */
+    .badge-p { padding: 4px 8px; border-radius: 6px; font-size: 11px; font-weight: 700; display: inline-block; }
+    .badge-p.critical { background: var(--red-light); color: var(--red); }
+    .badge-p.high { background: var(--orange-light); color: var(--orange); }
+    .badge-p.medium { background: var(--amber-light); color: var(--amber); }
+    .badge-p.low { background: var(--green-light); color: var(--green); }
   </style>
 </head>
 <body>
@@ -349,15 +306,8 @@
         <span class="nav-icon">📊</span>
         <span>Overview Dashboard</span>
       </button>
-      <button class="nav-item">
-        <span class="nav-icon">📥</span>
-        <span>Incoming Tickets</span>
-        <span class="nav-badge">0</span>
-      </button>
     </div>
-    <div class="sidebar-footer">
-      v1.2.0 · Live Connect
-    </div>
+    <div class="sidebar-footer">v1.2.0 · Live Export</div>
   </div>
 
   <div class="main">
@@ -367,46 +317,46 @@
         <p>Real-time backend support and assurance monitoring overview.</p>
       </div>
       <div class="topbar-actions">
-        <button class="btn btn-ghost">🔄 Refresh</button>
-        <a href="#" target="_blank" class="btn btn-primary">➕ New Request</a>
+        <button class="btn btn-ghost" id="refreshBtn">🔄 Refresh Data</button>
+        <a href="BPA-Form.html" target="_blank" class="btn btn-primary">➕ New Request</a>
       </div>
     </div>
 
-    <div class="page active">
+    <div class="page">
       <div class="stats-grid">
         <div class="stat-card s-total">
           <div class="stat-label">Total Volume</div>
-          <div class="stat-value">0</div>
+          <div class="stat-value" id="stat-total">0</div>
           <div class="stat-sub">Submitted requests</div>
         </div>
         <div class="stat-card s-open">
           <div class="stat-label">Active Queue</div>
-          <div class="stat-value">0</div>
+          <div class="stat-value" id="stat-active">0</div>
           <div class="stat-sub">Awaiting triage</div>
         </div>
         <div class="stat-card s-urgent">
           <div class="stat-label">Critical Priority</div>
-          <div class="stat-value">0</div>
+          <div class="stat-value" id="stat-critical">0</div>
           <div class="stat-sub">Work blocking flags</div>
         </div>
         <div class="stat-card s-done">
           <div class="stat-label">Resolved</div>
-          <div class="stat-value">0</div>
+          <div class="stat-value" id="stat-resolved">0</div>
           <div class="stat-sub">Archived cycles</div>
         </div>
       </div>
 
       <div class="filters-bar">
-        <input type="text" placeholder="Search parameters..." />
-        <select class="filter-select">
-          <option>All Departments</option>
+        <input type="text" id="searchInput" placeholder="Search by name, system, department..." />
+        <select class="filter-select" id="deptFilter">
+          <option value="All">All Departments</option>
         </select>
-        <div class="filter-count">Showing 0 entries</div>
+        <div class="filter-count" id="filterCount">Showing 0 entries</div>
       </div>
 
       <div class="table-wrap">
         <div class="table-scroll">
-          <table>
+          <table id="dataTable">
             <thead>
               <tr>
                 <th>Timestamp</th>
@@ -417,13 +367,125 @@
                 <th>Needed By</th>
               </tr>
             </thead>
-            <tbody>
-              </tbody>
+            <tbody id="tableBody">
+              <tr>
+                <td colspan="6" style="text-align:center; color:var(--muted); padding:30px;">Loading live tracking pipeline data...</td>
+              </tr>
+            </tbody>
           </table>
         </div>
       </div>
     </div>
   </div>
 
+  <script>
+    // CSV URL Configuration Block
+    const CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQu7uS9cdCKnFSZmdrAKb8iWe3r0WDBWz3r6ZTLySqY7okrCczRKTOGrSJJY-H2RXRDm4sbLLU9nZdV/pub?gid=1523743936&single=true&output=csv';
+
+    let rowData = [];
+
+    async function fetchCSV() {
+      try {
+        const response = await fetch(CSV_URL);
+        const csvText = await response.text();
+        parseCSV(csvText);
+      } catch (error) {
+        console.error('Error loading Sheet CSV matrix:', error);
+        document.getElementById('tableBody').innerHTML = `
+          <tr><td colspan="6" style="text-align:center; color:var(--red); padding:30px; font-weight:600;">Failed to fetch dashboard feed. Check connection parameters.</td></tr>
+        `;
+      }
+    }
+
+    function parseCSV(text) {
+      // Basic CSV Row Parsing regex configuration
+      const lines = text.split('\n').map(line => {
+        return line.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/).map(val => val.replace(/^"|"$/g, '').trim());
+      });
+
+      if (lines.length < 2) return;
+      
+      const headers = lines[0];
+      rowData = [];
+
+      // Map spreadsheet column mappings safely
+      for (let i = 1; i < lines.length; i++) {
+        if (lines[i].length < headers.length || !lines[i][0]) continue;
+        
+        let rowObj = {
+          timestamp:   lines[i][0] || '',
+          name:        lines[i][1] || '',
+          department:  lines[i][2] || '',
+          requestType: lines[i][3] || '',
+          system:      lines[i][4] || '',
+          priority:    lines[i][5] || '',
+          neededBy:    lines[i][6] || '',
+          status:      lines[i][9] || 'Open' // Assumed pipeline index position tracking
+        };
+        rowData.push(rowObj);
+      }
+
+      populateFilters();
+      updateDashboard();
+    }
+
+    function populateFilters() {
+      const deptFilter = document.getElementById('deptFilter');
+      const departments = [...new Set(rowData.map(r => r.department))].filter(Boolean);
+      
+      deptFilter.innerHTML = '<option value="All">All Departments</option>';
+      departments.forEach(dept => {
+        deptFilter.innerHTML += `<option value="${dept}">${dept}</option>`;
+      });
+    }
+
+    function updateDashboard() {
+      const searchVal = document.getElementById('searchInput').value.toLowerCase();
+      const selectedDept = document.getElementById('deptFilter').value;
+      const tbody = document.getElementById('tableBody');
+      
+      let filtered = rowData.filter(row => {
+        const matchesSearch = row.name.toLowerCase().includes(searchVal) || 
+                              row.system.toLowerCase().includes(searchVal) || 
+                              row.department.toLowerCase().includes(searchVal);
+        const matchesDept = selectedDept === 'All' || row.department === selectedDept;
+        return matchesSearch && matchesDept;
+      });
+
+      // Render Dynamic Counter Cards
+      document.getElementById('stat-total').textContent = rowData.length;
+      document.getElementById('stat-active').textContent = rowData.filter(r => r.status.toLowerCase() !== 'resolved' && r.status.toLowerCase() !== 'done').length;
+      document.getElementById('stat-critical').textContent = rowData.filter(r => r.priority.toLowerCase() === 'critical').length;
+      document.getElementById('stat-resolved').textContent = rowData.filter(r => r.status.toLowerCase() === 'resolved' || r.status.toLowerCase() === 'done').length;
+      document.getElementById('filterCount').textContent = `Showing ${filtered.length} entries`;
+
+      if (filtered.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; color:var(--muted); padding:30px;">No match entry fields found.</td></tr>`;
+        return;
+      }
+
+      tbody.innerHTML = '';
+      filtered.forEach(row => {
+        const pClass = row.priority.toLowerCase();
+        tbody.innerHTML += `
+          <tr>
+            <td>${row.timestamp}</td>
+            <td><strong>${row.name}</strong></td>
+            <td>${row.department}</td>
+            <td><code>${row.system}</code></td>
+            <td><span class="badge-p ${pClass}">${row.priority}</span></td>
+            <td>${row.neededBy}</td>
+          </tr>
+        `;
+      });
+    }
+
+    document.getElementById('searchInput').addEventListener('input', updateDashboard);
+    document.getElementById('deptFilter').addEventListener('change', updateDashboard);
+    document.getElementById('refreshBtn').addEventListener('click', fetchCSV);
+
+    // Bootstrap data initialization
+    window.addEventListener('DOMContentLoaded', fetchCSV);
+  </script>
 </body>
 </html>
