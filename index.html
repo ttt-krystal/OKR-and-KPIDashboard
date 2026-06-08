@@ -1,122 +1,266 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>2026 OKR & KPI Dashboard</title>
-  <style>
-    body { font-family: Arial, sans-serif; background: #f4f6f9; color: #333; margin: 0; }
-    nav { background: #0a2a66; padding: 15px; color: white; font-weight: bold; font-size: 18px; }
-    table { width: 100%; border-collapse: collapse; margin-top: 20px; background: #fff; }
-    th, td { border: 1px solid #ccc; padding: 8px; text-align: left; }
-    th { background: #0a2a66; color: white; }
-    .ontrack { background: #d4edda; }
-    .offtrack { background: #f8d7da; }
-    .pending { background: #e2e3e5; }
-    .analysis { margin: 30px; padding: 15px; background: #fff; border: 1px solid #ccc; }
-    label { margin-left: 20px; font-weight: bold; }
-    select { margin-left: 10px; padding: 5px; }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Stuff Box</title>
+    
+    <!-- Clean, punchy modern fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Space+Grotesk:wght@600;700&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --bg: #fdf6e2;             /* Cozy soft banana background */
+            --border-main: #1e1e24;    /* Strong, cartoonish crisp outline */
+            
+            /* Fun Pop Accent Colors */
+            --folder-yellow: #ffde6a;  
+            --intake-pink: #ffb4d6;    
+            --locked-blue: #a3e2f7;    
+            --btn-green: #9bf6ff;      
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg);
+            color: var(--border-main);
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        .workspace-cabinet {
+            width: 100%;
+            max-width: 580px;
+            padding: 40px 20px;
+            box-sizing: border-box;
+        }
+
+        /* Fun Retro Header Box */
+        header {
+            background: #ffffff;
+            border: 3px solid var(--border-main);
+            padding: 24px;
+            border-radius: 16px;
+            box-shadow: 6px 6px 0px var(--border-main);
+            margin-bottom: 40px;
+            position: relative;
+        }
+
+        header h1 {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 2.2rem;
+            margin: 0 0 6px 0;
+            letter-spacing: -0.02em;
+        }
+
+        header p {
+            margin: 0;
+            font-size: 1rem;
+            color: #555;
+            font-weight: 500;
+        }
+
+        /* Interactive Sticker Badge */
+        .sticker {
+            position: absolute;
+            top: -15px;
+            right: -10px;
+            background: #b5e2fa;
+            border: 2px solid var(--border-main);
+            padding: 4px 12px;
+            border-radius: 40px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            transform: rotate(6deg);
+            cursor: pointer;
+            user-select: none;
+            transition: transform 0.1s ease;
+        }
+        .sticker:active {
+            transform: scale(0.9) rotate(0deg);
+        }
+
+        .section-title {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 1.2rem;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        /* The File Grid Storage System */
+        .storage-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 20px;
+        }
+
+        /* Fun Folder Item Component */
+        .file-folder {
+            text-decoration: none;
+            color: var(--border-main);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            padding: 16px;
+            background: #ffffff;
+            border: 3px solid var(--border-main);
+            border-radius: 16px;
+            box-shadow: 4px 4px 0px var(--border-main);
+            transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.2s ease;
+            position: relative;
+        }
+
+        /* Bounce interaction when hovering folder */
+        .file-folder:hover {
+            transform: translateY(-5px) scale(1.02);
+            box-shadow: 8px 8px 0px var(--border-main);
+        }
+
+        .file-folder:active {
+            transform: translateY(2px);
+            box-shadow: 2px 2px 0px var(--border-main);
+        }
+
+        /* Fun Dynamic Folder Tab visual graphic */
+        .folder-visual {
+            width: 70px;
+            height: 50px;
+            background-color: var(--folder-yellow);
+            border: 3px solid var(--border-main);
+            border-radius: 4px 12px 4px 4px;
+            position: relative;
+            margin-bottom: 14px;
+            box-shadow: 2px 2px 0px rgba(0,0,0,0.1);
+        }
+
+        .folder-visual::before {
+            content: '';
+            position: absolute;
+            top: -9px;
+            left: -3px;
+            width: 25px;
+            height: 8px;
+            background-color: var(--folder-yellow);
+            border: 3px solid var(--border-main);
+            border-bottom: none;
+            border-radius: 6px 6px 0 0;
+        }
+
+        /* Tailoring the form tab color specifically */
+        .form-folder .folder-visual, .form-folder .folder-visual::before {
+            background-color: var(--intake-pink);
+        }
+
+        /* Label details */
+        .file-folder h2 {
+            font-size: 0.95rem;
+            font-weight: 600;
+            margin: 0 0 4px 0;
+            line-height: 1.3;
+        }
+
+        .file-folder p {
+            margin: 0;
+            font-size: 0.75rem;
+            color: #666;
+        }
+
+        /* Empty / Available Space Boxes */
+        .file-folder.empty-slot {
+            background: rgba(255, 255, 255, 0.3);
+            border-style: dashed;
+            box-shadow: none;
+            cursor: dotted;
+        }
+
+        .file-folder.empty-slot:hover {
+            transform: none;
+            box-shadow: none;
+        }
+
+        .file-folder.empty-slot .folder-visual {
+            background-color: transparent;
+            border-style: dashed;
+            opacity: 0.4;
+        }
+        .file-folder.empty-slot .folder-visual::before {
+            display: none;
+        }
+
+        footer {
+            text-align: center;
+            margin-top: 50px;
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 0.85rem;
+            opacity: 0.7;
+        }
+    </style>
 </head>
 <body>
-  <nav>📊 2026 OKR & KPI Dashboard</nav>
 
-  <label for="teamFilter">Filter by Team:</label>
-  <select id="teamFilter">
-    <option value="all">All</option>
-    <option value="Sales">Sales</option>
-    <option value="Marketing">Marketing</option>
-    <option value="Product">Product</option>
-    <option value="Operations">Operations</option>
-  </select>
+    <div class="workspace-cabinet">
+        <header>
+            <!-- Interactive clickable sticker badge -->
+            <div class="sticker" onclick="changeStickerText(this)">Click me! ✌️</div>
+            <h1>Stuff Storage</h1>
+            <p>My neat little stash of active custom tools and files.</p>
+        </header>
 
-  <table id="summaryTable">
-    <thead>
-      <tr>
-        <th>Team</th>
-        <th>OKR</th>
-        <th>Key Result</th>
-        <th>Owner</th>
-        <th>2026 Target</th>
-        <th>YTD Target</th>
-        <th>Total Actual</th>
-        <th>YTD KPI Status</th>
-        <th>Annual KPI Status</th>
-      </tr>
-    </thead>
-    <tbody></tbody>
-  </table>
+        <div class="section-title">
+            <span>🗂️</span> Cabinet Directory
+        </div>
 
-  <div class="analysis" id="analysisSection">
-    <h3>Analysis</h3>
-    <ul id="analysisList"></ul>
-  </div>
+        <!-- File Cluster Grid -->
+        <main class="storage-grid">
+            
+            <!-- THE OPERATIONAL CONTINUITY FORM FILE -->
+            <!-- Link your actual HTML form file right here -->
+            <a href="OCRequestPortal.html" class="file-folder form-folder">
+                <div class="folder-visual"></div>
+                <h2>Continuity Request</h2>
+                <p>Form Link</p>
+            </a>
 
-  <!-- PapaParse library for CSV parsing -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
-  <script>
-    // Replace with your published CSV link from Google Sheets
-    const csvUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRsw0BSUhlsr311bkTGLoFzZLIdVuUNCJ0TN5pZZIAo68ynbcwvig2k83epphLo0-94lYAChOm9UnJM/pubhtml?gid=1280621067&single=true";
+            <!-- EMPTY SLOT FOR NEXT THING -->
+            <div class="file-folder empty-slot">
+                <div class="folder-visual"></div>
+                <h2>[ Empty Slot ]</h2>
+                <p>Ready for project</p>
+            </div>
 
-    async function loadData() {
-      const response = await fetch(csvUrl);
-      const text = await response.text();
+            <!-- EMPTY SLOT FOR THIRD THING -->
+            <div class="file-folder empty-slot">
+                <div class="folder-visual"></div>
+                <h2>[ Empty Slot ]</h2>
+                <p>Ready for project</p>
+            </div>
 
-      Papa.parse(text, {
-        header: true,
-        skipEmptyLines: true,
-        complete: function(results) {
-          const data = results.data;
-          const tbody = document.querySelector("#summaryTable tbody");
-          const analysisList = document.querySelector("#analysisList");
+        </main>
 
-          data.forEach(row => {
-            if (!row.Team) return; // skip empty rows
+        <footer>
+            <p>Vault Vol. 1 // 2026 </p>
+        </footer>
+    </div>
 
-            const tr = document.createElement("tr");
-            let statusClass = "";
-            if (row["YTD KPI Status"] && row["YTD KPI Status"].includes("On-track")) statusClass = "ontrack";
-            else if (row["YTD KPI Status"] && row["YTD KPI Status"].includes("Off-track")) statusClass = "offtrack";
-            else statusClass = "pending";
-            tr.className = statusClass;
-
-            tr.innerHTML = `
-              <td>${row.Team || ""}</td>
-              <td>${row.OKR || ""}</td>
-              <td>${row["Key Result"] || ""}</td>
-              <td>${row.Owner || ""}</td>
-              <td>${row["2026 Target"] || ""}</td>
-              <td>${row["YTD Target"] || ""}</td>
-              <td>${row["Total Actual"] || ""}</td>
-              <td>${row["YTD KPI Status"] || ""}</td>
-              <td>${row["Annual KPI Status"] || ""}</td>
-            `;
-            tbody.appendChild(tr);
-
-            // Analysis logic: flag off-track KPIs
-            if (row["YTD KPI Status"] && row["YTD KPI Status"].includes("Off-track")) {
-              const li = document.createElement("li");
-              li.textContent = `${row.Team} - ${row.OKR} is off-track (Actual: ${row["Total Actual"]}, Target: ${row["2026 Target"]}).`;
-              analysisList.appendChild(li);
-            }
-          });
+    <script>
+        // Fun tiny interaction for the sticker badge
+        const phrases = ["Have a nice day! 🌟", "Keep creating! 🚀", "Fixed it! 🛠️", "Operational 🟢"];
+        let currentIdx = 0;
+        
+        function changeStickerText(element) {
+            element.textContent = phrases[currentIdx];
+            currentIdx = (currentIdx + 1) % phrases.length;
         }
-      });
-    }
-
-    // Filter functionality
-    document.getElementById("teamFilter").addEventListener("change", function() {
-      const value = this.value;
-      const rows = document.querySelectorAll("#summaryTable tbody tr");
-      rows.forEach(r => {
-        if (value === "all" || r.cells[0].textContent === value) {
-          r.style.display = "";
-        } else {
-          r.style.display = "none";
-        }
-      });
-    });
-
-    loadData();
-  </script>
+    </script>
 </body>
 </html>
