@@ -130,7 +130,7 @@
 
     .file-list { margin-top: 10px; display: flex; flex-direction: column; gap: 6px; }
     .file-item { display: flex; align-items: center; gap: 10px; background: #fafbff; border: 1px solid var(--border); border-radius: 8px; padding: 8px 12px; font-size: 13px; }
-    .file-item .fi-name { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--text); }
+    .file-item .fi- { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--text); }
     .file-item .fi-size { color: var(--muted); font-size: 11px; }
     .file-item .fi-remove { background: none; border: none; color: #c0c6d8; cursor: pointer; font-size: 18px; line-height: 1; transition: color 0.1s; }
     .file-item .fi-remove:hover { color: var(--red); }
@@ -169,8 +169,8 @@
       <div class="card c1">
         <div class="card-title"><span class="card-num">1</span> Requester info</div>
         <div class="two-col">
-          <div class="field" id="field-name">
-            <label>Full name <span class="req">*</span></label>
+          <div class="field" id="field-">
+            <label>Name <span class="req">*</span></label>
             <input type="text" id="name" placeholder="Your full name" />
             <div class="field-error">This field is required.</div>
           </div>
