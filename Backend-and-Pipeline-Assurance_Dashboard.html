@@ -1,0 +1,990 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Backend & Pipeline Assurance Dashboard</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:           #f0f2ff;
+      --surface:      #ffffff;
+      --border:       #dde1f0;
+      --text:         #1a1d2e;
+      --muted:        #6b7280;
+      --label:        #2d3250;
+      --accent:       #4f46e5;
+      --accent-light: #ede9fe;
+      --accent2:      #0ea5e9;
+      --accent2-light:#e0f2fe;
+      --green:        #059669;
+      --green-light:  #d1fae5;
+      --amber:        #d97706;
+      --amber-light:  #fef3c7;
+      --orange:       #ea580c;
+      --orange-light: #ffedd5;
+      --red:          #dc2626;
+      --red-light:    #fee2e2;
+      --purple:       #7c3aed;
+      --radius:       10px;
+      --font:         'Plus Jakarta Sans', sans-serif;
+      --nav-w:        220px;
+    }
+
+    body {
+      font-family: var(--font);
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      font-size: 14px;
+      line-height: 1.6;
+    }
+
+    /* ── sidebar nav ── */
+    .sidebar {
+      width: var(--nav-w);
+      min-height: 100vh;
+      background: var(--surface);
+      border-right: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      position: fixed;
+      top: 0; left: 0;
+      z-index: 50;
+    }
+
+    .sidebar-logo {
+      padding: 24px 20px 20px;
+      border-bottom: 1px solid var(--border);
+    }
+    .sidebar-logo .logo-badge {
+      display: inline-block;
+      background: linear-gradient(135deg, #4f46e5, #7c3aed);
+      color: #fff;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      padding: 3px 8px;
+      border-radius: 5px;
+      margin-bottom: 6px;
+    }
+    .sidebar-logo h2 {
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--text);
+      line-height: 1.3;
+    }
+    .sidebar-logo p {
+      font-size: 11px;
+      color: var(--muted);
+      margin-top: 2px;
+    }
+
+    .sidebar-nav {
+      padding: 16px 12px;
+      flex: 1;
+    }
+    .nav-section-label {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--muted);
+      padding: 0 8px;
+      margin-bottom: 6px;
+      margin-top: 16px;
+    }
+    .nav-section-label:first-child { margin-top: 0; }
+
+    .nav-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 9px 10px;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--muted);
+      cursor: pointer;
+      transition: all 0.15s;
+      text-decoration: none;
+      border: none;
+      background: none;
+      width: 100%;
+      text-align: left;
+    }
+    .nav-item:hover { background: var(--bg); color: var(--text); }
+    .nav-item.active {
+      background: var(--accent-light);
+      color: var(--accent);
+      font-weight: 600;
+    }
+    .nav-item .nav-icon { font-size: 16px; width: 20px; text-align: center; }
+    .nav-item .nav-badge {
+      margin-left: auto;
+      font-size: 11px;
+      font-weight: 700;
+      padding: 1px 7px;
+      border-radius: 100px;
+      background: var(--red-light);
+      color: var(--red);
+    }
+    .nav-item.active .nav-badge {
+      background: rgba(79,70,229,0.15);
+      color: var(--accent);
+    }
+
+    .sidebar-footer {
+      padding: 16px 20px;
+      border-top: 1px solid var(--border);
+      font-size: 11px;
+      color: var(--muted);
+    }
+
+    /* ── main content ── */
+    .main {
+      margin-left: var(--nav-w);
+      flex: 1;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* ── top bar ── */
+    .topbar {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 16px 28px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 40;
+    }
+    .topbar h1 {
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--text);
+    }
+    .topbar p { font-size: 13px; color: var(--muted); }
+    .topbar-actions { display: flex; gap: 10px; align-items: center; }
+
+    .btn {
+      display: inline-flex; align-items: center; gap: 7px;
+      font-family: var(--font); font-size: 13px; font-weight: 600;
+      padding: 8px 16px; border-radius: 8px; cursor: pointer;
+      transition: all 0.15s; border: none; text-decoration: none;
+    }
+    .btn-primary {
+      background: linear-gradient(135deg, #4f46e5, #7c3aed);
+      color: #fff;
+      box-shadow: 0 3px 10px rgba(79,70,229,0.3);
+    }
+    .btn-primary:hover { opacity: 0.88; }
+    .btn-ghost {
+      background: var(--bg);
+      border: 1.5px solid var(--border);
+      color: var(--label);
+    }
+    .btn-ghost:hover { border-color: #b0b7d0; }
+
+    /* ── page content ── */
+    .page { padding: 28px; display: none; }
+    .page.active { display: block; }
+
+    /* ── stat cards ── */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 14px;
+      margin-bottom: 24px;
+    }
+    @media (max-width: 900px) { .stats-grid { grid-template-columns: repeat(2,1fr); } }
+
+    .stat-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 18px 20px;
+      position: relative;
+      overflow: hidden;
+    }
+    .stat-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 3px;
+    }
+    .stat-card.s-total::before  { background: linear-gradient(90deg, #4f46e5, #7c3aed); }
+    .stat-card.s-open::before   { background: linear-gradient(90deg, #0ea5e9, #06b6d4); }
+    .stat-card.s-urgent::before { background: linear-gradient(90deg, #dc2626, #ea580c); }
+    .stat-card.s-done::before   { background: linear-gradient(90deg, #059669, #10b981); }
+
+    .stat-label { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.07em; color: var(--muted); margin-bottom: 8px; }
+    .stat-value { font-size: 28px; font-weight: 700; color: var(--text); line-height: 1; }
+    .stat-sub   { font-size: 12px; color: var(--muted); margin-top: 4px; }
+
+    /* ── filters bar ── */
+    .filters-bar {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 16px 20px;
+      margin-bottom: 16px;
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+    .filters-bar input[type="text"] {
+      flex: 1;
+      min-width: 180px;
+      background: var(--bg);
+      border: 1.5px solid var(--border);
+      border-radius: 8px;
+      color: var(--text);
+      font-family: var(--font);
+      font-size: 13px;
+      padding: 8px 13px;
+      outline: none;
+      transition: border-color 0.15s;
+    }
+    .filters-bar input[type="text"]:focus { border-color: var(--accent); }
+    .filters-bar input[type="text"]::placeholder { color: #c0c6d8; }
+
+    .filter-select {
+      background: var(--bg);
+      border: 1.5px solid var(--border);
+      border-radius: 8px;
+      color: var(--label);
+      font-family: var(--font);
+      font-size: 13px;
+      padding: 8px 12px;
+      outline: none;
+      cursor: pointer;
+      transition: border-color 0.15s;
+      appearance: none;
+      padding-right: 28px;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%236b7280' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 10px center;
+    }
+    .filter-select:focus { border-color: var(--accent); }
+
+    .filter-count {
+      font-size: 12px;
+      color: var(--muted);
+      margin-left: auto;
+      white-space: nowrap;
+    }
+
+    /* ── table ── */
+    .table-wrap {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+    }
+    .table-scroll { overflow-x: auto; }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+    }
+    thead {
+      background: var(--bg);
+      border-bottom: 1px solid var(--border);
+    }
+    th {
+      padding: 11px 16px;
+      text-align: left;
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--muted);
+      white-space: nowrap;
+      cursor: pointer;
+      user-select: none;
+      transition: color 0.15s;
+    }
+    th:hover { color: var(--text); }
+    th .sort-icon { margin-left: 4px; opacity: 0.4; }
+    th.sorted { color: var(--accent); }
+    th.sorted .sort-icon { opacity: 1; }
+
+    tbody tr {
+      border-bottom: 1px solid var(--border);
+      transition: background 0.1s;
+      cursor: pointer;
+    }
+    tbody tr:last-child { border-bottom: none; }
+    tbody tr:hover { background: #fafbff; }
+
+    td {
+      padding: 13px 16px;
+      vertical-align: middle;
+      color: var(--text);
+    }
+    td.td-muted { color: var(--muted); font-size: 12px; }
+    td.td-name  { font-weight: 600; }
+    td.td-desc  {
+      max-width: 220px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      color: var(--muted);
+    }
+
+    /* priority badge */
+    .badge {
+      display: inline-flex; align-items: center;
+      font-size: 11px; font-weight: 700;
+      padding: 3px 10px; border-radius: 100px;
+      white-space: nowrap;
+    }
+    .badge-low      { background: var(--green-light);  color: var(--green); }
+    .badge-medium   { background: var(--amber-light);  color: var(--amber); }
+    .badge-high     { background: var(--orange-light); color: var(--orange); }
+    .badge-critical { background: var(--red-light);    color: var(--red); }
+    .badge-debug        { background: var(--accent-light);  color: var(--accent); }
+    .badge-troubleshoot { background: var(--accent2-light); color: var(--accent2); }
+    .badge-onetimetask  { background: var(--green-light);   color: var(--green); }
+    .badge-other        { background: #f3f4f6; color: #6b7280; }
+
+    /* status badge */
+    .status-badge {
+      display: inline-flex; align-items: center; gap: 5px;
+      font-size: 11px; font-weight: 600;
+      padding: 4px 10px; border-radius: 100px;
+    }
+    .status-dot { width: 6px; height: 6px; border-radius: 50%; }
+    .s-open        { background: var(--accent2-light); color: var(--accent2); }
+    .s-open .status-dot        { background: var(--accent2); }
+    .s-inprogress  { background: var(--amber-light);  color: var(--amber); }
+    .s-inprogress .status-dot  { background: var(--amber); }
+    .s-done        { background: var(--green-light);  color: var(--green); }
+    .s-done .status-dot        { background: var(--green); }
+    .s-closed      { background: #f3f4f6; color: #6b7280; }
+    .s-closed .status-dot      { background: #9ca3af; }
+
+    /* ── empty / loading states ── */
+    .state-box {
+      padding: 60px 20px;
+      text-align: center;
+      color: var(--muted);
+    }
+    .state-box .state-icon { font-size: 36px; margin-bottom: 12px; }
+    .state-box p { font-size: 14px; }
+    .state-box small { font-size: 12px; opacity: 0.7; }
+
+    /* loading spinner row */
+    .loading-row td {
+      padding: 48px;
+      text-align: center;
+      color: var(--muted);
+    }
+    .spin {
+      display: inline-block;
+      width: 22px; height: 22px;
+      border: 3px solid var(--border);
+      border-top-color: var(--accent);
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+      margin-bottom: 10px;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ── row detail drawer ── */
+    .drawer-overlay {
+      position: fixed; inset: 0;
+      background: rgba(26,29,46,0.35);
+      z-index: 200;
+      opacity: 0; pointer-events: none;
+      transition: opacity 0.2s;
+    }
+    .drawer-overlay.open { opacity: 1; pointer-events: all; }
+
+    .drawer {
+      position: fixed; top: 0; right: 0; bottom: 0;
+      width: 420px; max-width: 95vw;
+      background: var(--surface);
+      border-left: 1px solid var(--border);
+      z-index: 201;
+      transform: translateX(100%);
+      transition: transform 0.25s cubic-bezier(0.4,0,0.2,1);
+      display: flex; flex-direction: column;
+      overflow: hidden;
+    }
+    .drawer.open { transform: translateX(0); }
+
+    .drawer-header {
+      padding: 20px 24px 16px;
+      border-bottom: 1px solid var(--border);
+      display: flex; align-items: flex-start; justify-content: space-between; gap: 12px;
+    }
+    .drawer-header h3 { font-size: 15px; font-weight: 700; color: var(--text); }
+    .drawer-close {
+      background: var(--bg); border: 1px solid var(--border);
+      width: 30px; height: 30px; border-radius: 7px;
+      cursor: pointer; font-size: 18px; color: var(--muted);
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0; transition: color 0.15s;
+    }
+    .drawer-close:hover { color: var(--text); }
+
+    .drawer-body { flex: 1; overflow-y: auto; padding: 20px 24px; }
+
+    .detail-row {
+      display: flex; flex-direction: column;
+      gap: 3px; margin-bottom: 18px;
+    }
+    .detail-row:last-child { margin-bottom: 0; }
+    .detail-label {
+      font-size: 10px; font-weight: 700; letter-spacing: 0.08em;
+      text-transform: uppercase; color: var(--muted);
+    }
+    .detail-value { font-size: 13px; color: var(--text); line-height: 1.6; }
+    .detail-value.pre { white-space: pre-wrap; background: var(--bg); border-radius: 7px; padding: 10px 12px; font-size: 13px; }
+
+    .drawer-footer {
+      padding: 16px 24px;
+      border-top: 1px solid var(--border);
+      background: var(--bg);
+    }
+    .drawer-footer label {
+      font-size: 11px; font-weight: 700; letter-spacing: 0.07em;
+      text-transform: uppercase; color: var(--muted); margin-bottom: 8px; display: block;
+    }
+    .status-btns { display: flex; gap: 8px; flex-wrap: wrap; }
+    .status-btn {
+      font-family: var(--font); font-size: 12px; font-weight: 600;
+      padding: 6px 14px; border-radius: 100px; cursor: pointer;
+      border: 1.5px solid transparent; transition: all 0.15s;
+    }
+    .status-btn.sb-open       { border-color: var(--accent2); color: var(--accent2); background: var(--accent2-light); }
+    .status-btn.sb-inprogress { border-color: var(--amber);   color: var(--amber);   background: var(--amber-light); }
+    .status-btn.sb-done       { border-color: var(--green);   color: var(--green);   background: var(--green-light); }
+    .status-btn.sb-closed     { border-color: #9ca3af;        color: #6b7280;        background: #f3f4f6; }
+    .status-btn:hover { opacity: 0.8; }
+    .status-btn.active { box-shadow: 0 0 0 2px currentColor; }
+
+    .status-note {
+      font-size: 11px; color: var(--muted); margin-top: 10px;
+      padding: 8px 12px; background: var(--amber-light);
+      border-radius: 7px; border-left: 3px solid var(--amber);
+      line-height: 1.5;
+    }
+
+    /* ── toast ── */
+    .toast {
+      position: fixed; bottom: 24px; left: 50%;
+      transform: translateX(-50%) translateY(16px);
+      background: #1a1d2e; color: #fff;
+      border-radius: 8px; padding: 11px 22px;
+      font-size: 13px; font-weight: 600;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+      opacity: 0; transition: opacity 0.2s, transform 0.2s;
+      z-index: 300; pointer-events: none; white-space: nowrap;
+    }
+    .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+    .toast.success { background: var(--green); }
+    .toast.error   { background: var(--red); }
+
+    /* ── mobile nav toggle ── */
+    .mob-nav-toggle {
+      display: none;
+      position: fixed; top: 14px; left: 14px;
+      z-index: 100;
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 8px; padding: 8px 10px;
+      font-size: 18px; cursor: pointer;
+    }
+    @media (max-width: 720px) {
+      .sidebar { transform: translateX(-100%); transition: transform 0.25s; }
+      .sidebar.mob-open { transform: translateX(0); }
+      .main { margin-left: 0; }
+      .mob-nav-toggle { display: block; }
+      .stats-grid { grid-template-columns: repeat(2,1fr); }
+      .page { padding: 16px; padding-top: 60px; }
+    }
+  </style>
+</head>
+<body>
+
+  <button class="mob-nav-toggle" id="mobToggle">☰</button>
+
+  <!-- ── sidebar ── -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-logo">
+      <div class="logo-badge">OC</div>
+      <h2>Continuity Desk</h2>
+      <p>Operational requests portal</p>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="nav-section-label">Main</div>
+      <button class="nav-item active" data-page="dashboard">
+        <span class="nav-icon">📊</span> Dashboard
+        <span class="nav-badge" id="nav-open-count">—</span>
+      </button>
+      <a class="nav-item" href="OCRequestPortal.html">
+        <span class="nav-icon">➕</span> New request
+      </a>
+
+      <div class="nav-section-label">Filter by status</div>
+      <button class="nav-item" data-filter-status="all">
+        <span class="nav-icon">📋</span> All requests
+      </button>
+      <button class="nav-item" data-filter-status="Open">
+        <span class="nav-icon">🔵</span> Open
+      </button>
+      <button class="nav-item" data-filter-status="In Progress">
+        <span class="nav-icon">🟡</span> In progress
+      </button>
+      <button class="nav-item" data-filter-status="Done">
+        <span class="nav-icon">🟢</span> Done
+      </button>
+      <button class="nav-item" data-filter-status="Closed">
+        <span class="nav-icon">⚫</span> Closed
+      </button>
+    </nav>
+    <div class="sidebar-footer">
+      Data syncs from Google Sheets.<br>
+      Status changes are local only.
+    </div>
+  </aside>
+
+  <!-- ── main ── -->
+  <div class="main">
+    <div class="topbar">
+      <div>
+        <h1 id="page-title">Dashboard</h1>
+        <p id="page-sub">All operational continuity requests</p>
+      </div>
+      <div class="topbar-actions">
+        <button class="btn btn-ghost" id="refreshBtn">🔄 Refresh</button>
+        <a class="btn btn-primary" href="OCRequestPortal.html">➕ New request</a>
+      </div>
+    </div>
+
+    <!-- dashboard page -->
+    <div class="page active" id="page-dashboard">
+
+      <!-- stat cards -->
+      <div class="stats-grid">
+        <div class="stat-card s-total">
+          <div class="stat-label">Total requests</div>
+          <div class="stat-value" id="stat-total">—</div>
+          <div class="stat-sub">all time</div>
+        </div>
+        <div class="stat-card s-open">
+          <div class="stat-label">Open</div>
+          <div class="stat-value" id="stat-open">—</div>
+          <div class="stat-sub">awaiting action</div>
+        </div>
+        <div class="stat-card s-urgent">
+          <div class="stat-label">Critical / High</div>
+          <div class="stat-value" id="stat-urgent">—</div>
+          <div class="stat-sub">need attention</div>
+        </div>
+        <div class="stat-card s-done">
+          <div class="stat-label">Resolved</div>
+          <div class="stat-value" id="stat-done">—</div>
+          <div class="stat-sub">done + closed</div>
+        </div>
+      </div>
+
+      <!-- filters -->
+      <div class="filters-bar">
+        <input type="text" id="searchInput" placeholder="🔍  Search name, team, system, description…" />
+        <select class="filter-select" id="filterPriority">
+          <option value="">All priorities</option>
+          <option value="Critical">🔴 Critical</option>
+          <option value="High">🟠 High</option>
+          <option value="Medium">🟡 Medium</option>
+          <option value="Low">🟢 Low</option>
+        </select>
+        <select class="filter-select" id="filterType">
+          <option value="">All types</option>
+          <option value="Debug">🐛 Debug</option>
+          <option value="Troubleshoot">🔧 Troubleshoot</option>
+          <option value="One-time task">✅ One-time task</option>
+          <option value="Other">· · · Other</option>
+        </select>
+        <select class="filter-select" id="filterStatus">
+          <option value="">All statuses</option>
+          <option value="Open">Open</option>
+          <option value="In Progress">In Progress</option>
+          <option value="Done">Done</option>
+          <option value="Closed">Closed</option>
+        </select>
+        <span class="filter-count" id="filterCount"></span>
+      </div>
+
+      <!-- table -->
+      <div class="table-wrap">
+        <div class="table-scroll">
+          <table id="requestTable">
+            <thead>
+              <tr>
+                <th data-col="0">Date <span class="sort-icon">↕</span></th>
+                <th data-col="1" class="sorted">Name <span class="sort-icon">↑</span></th>
+                <th data-col="2">Team <span class="sort-icon">↕</span></th>
+                <th data-col="3">Type <span class="sort-icon">↕</span></th>
+                <th data-col="4">System <span class="sort-icon">↕</span></th>
+                <th data-col="5">Priority <span class="sort-icon">↕</span></th>
+                <th data-col="6">Needed by <span class="sort-icon">↕</span></th>
+                <th data-col="9">Description</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody id="tableBody">
+              <tr class="loading-row">
+                <td colspan="9">
+                  <div class="spin"></div>
+                  <p>Loading requests…</p>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── row detail drawer ── -->
+  <div class="drawer-overlay" id="drawerOverlay"></div>
+  <div class="drawer" id="drawer">
+    <div class="drawer-header">
+      <div>
+        <h3 id="drawer-title">Request details</h3>
+        <div id="drawer-badges" style="margin-top:6px; display:flex; gap:6px; flex-wrap:wrap;"></div>
+      </div>
+      <button class="drawer-close" id="drawerClose">×</button>
+    </div>
+    <div class="drawer-body" id="drawerBody"></div>
+    <div class="drawer-footer">
+      <label>Update status</label>
+      <div class="status-btns">
+        <button class="status-btn sb-open"       data-s="Open">🔵 Open</button>
+        <button class="status-btn sb-inprogress" data-s="In Progress">🟡 In Progress</button>
+        <button class="status-btn sb-done"        data-s="Done">🟢 Done</button>
+        <button class="status-btn sb-closed"      data-s="Closed">⚫ Closed</button>
+      </div>
+      <div class="status-note">
+        ⚠️ Status is stored locally in your browser. To persist it, add a <strong>Status</strong> column to your Google Sheet and update it there.
+      </div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <script>
+    // ── CONFIG ────────────────────────────────────────────────────────────────
+    const CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQu7uS9cdCKnFSZmdrAKb8iWe3r0WDBWz3r6ZTLySqY7okrCczRKTOGrSJJY-H2RXRDm4sbLLU9nZdV/pub?gid=1523743936&single=true&output=csv';
+    // ─────────────────────────────────────────────────────────────────────────
+
+    // cols: 0=Timestamp 1=Name 2=Team 3=RequestType 4=System 5=Priority 6=NeededBy 7=Description 8=StepsTried 9=Attachments
+    const COL = { ts:0, name:1, team:2, type:3, system:4, priority:5, neededBy:6, desc:7, steps:8, attach:9 };
+
+    let allRows    = [];
+    let statusMap  = JSON.parse(localStorage.getItem('oc_status') || '{}');
+    let activeRow  = null;
+    let sortCol    = -1;
+    let sortAsc    = true;
+    let activeStatusFilter = '';
+
+    // ── CSV fetch ─────────────────────────────────────────────────────────────
+    async function fetchData() {
+      document.getElementById('tableBody').innerHTML = `
+        <tr class="loading-row"><td colspan="9">
+          <div class="spin"></div><p>Loading requests…</p>
+        </td></tr>`;
+      try {
+        const r = await fetch(CSV_URL + '&t=' + Date.now());
+        const text = await r.text();
+        allRows = parseCSV(text).slice(1); // skip header row
+        renderAll();
+        updateStats();
+      } catch(e) {
+        document.getElementById('tableBody').innerHTML = `
+          <tr><td colspan="9">
+            <div class="state-box">
+              <div class="state-icon">⚠️</div>
+              <p>Could not load data.</p>
+              <small>Make sure the sheet is published and the CSV URL is correct.</small>
+            </div>
+          </td></tr>`;
+      }
+    }
+
+    // ── CSV parser ────────────────────────────────────────────────────────────
+    function parseCSV(text) {
+      const rows = []; let row = []; let cell = ''; let inQ = false;
+      for (let i = 0; i < text.length; i++) {
+        const c = text[i];
+        if (inQ) {
+          if (c === '"' && text[i+1] === '"') { cell += '"'; i++; }
+          else if (c === '"') inQ = false;
+          else cell += c;
+        } else {
+          if (c === '"') inQ = true;
+          else if (c === ',') { row.push(cell); cell = ''; }
+          else if (c === '\n') { row.push(cell); rows.push(row); row = []; cell = ''; }
+          else if (c === '\r') {}
+          else cell += c;
+        }
+      }
+      if (cell || row.length) { row.push(cell); rows.push(row); }
+      return rows;
+    }
+
+    // ── key per row ───────────────────────────────────────────────────────────
+    function rowKey(r) { return (r[COL.ts] + '|' + r[COL.name]).trim(); }
+
+    function getStatus(r) { return statusMap[rowKey(r)] || 'Open'; }
+
+    // ── render ────────────────────────────────────────────────────────────────
+    function getFiltered() {
+      const q  = document.getElementById('searchInput').value.toLowerCase();
+      const fp = document.getElementById('filterPriority').value;
+      const ft = document.getElementById('filterType').value;
+      const fs = document.getElementById('filterStatus').value || activeStatusFilter;
+
+      return allRows.filter(r => {
+        if (fp && r[COL.priority] !== fp) return false;
+        if (ft && r[COL.type] !== ft) return false;
+        if (fs && fs !== 'all' && getStatus(r) !== fs) return false;
+        if (q) {
+          const hay = [r[COL.name], r[COL.team], r[COL.system], r[COL.desc], r[COL.type]].join(' ').toLowerCase();
+          if (!hay.includes(q)) return false;
+        }
+        return true;
+      });
+    }
+
+    function renderAll() {
+      let rows = getFiltered();
+
+      if (sortCol >= 0) {
+        rows.sort((a, b) => {
+          const av = (a[sortCol] || '').toLowerCase();
+          const bv = (b[sortCol] || '').toLowerCase();
+          return sortAsc ? av.localeCompare(bv) : bv.localeCompare(av);
+        });
+      }
+
+      document.getElementById('filterCount').textContent =
+        rows.length + ' of ' + allRows.length + ' request' + (allRows.length !== 1 ? 's' : '');
+
+      const tbody = document.getElementById('tableBody');
+      if (!rows.length) {
+        tbody.innerHTML = `<tr><td colspan="9"><div class="state-box"><div class="state-icon">🔍</div><p>No requests match your filters.</p></div></td></tr>`;
+        return;
+      }
+
+      tbody.innerHTML = rows.map(r => {
+        const status = getStatus(r);
+        const sCls   = statusClass(status);
+        const pCls   = priorityClass(r[COL.priority]);
+        const tCls   = typeClass(r[COL.type]);
+        const date   = formatDate(r[COL.ts]);
+        return `<tr data-key="${escH(rowKey(r))}">
+          <td class="td-muted">${date}</td>
+          <td class="td-name">${escH(r[COL.name])}</td>
+          <td class="td-muted">${escH(r[COL.team])}</td>
+          <td><span class="badge ${tCls}">${escH(r[COL.type])}</span></td>
+          <td>${escH(r[COL.system])}</td>
+          <td><span class="badge ${pCls}">${escH(r[COL.priority])}</span></td>
+          <td class="td-muted">${escH(r[COL.neededBy])}</td>
+          <td class="td-desc" title="${escH(r[COL.desc])}">${escH(r[COL.desc])}</td>
+          <td><span class="status-badge ${sCls}"><span class="status-dot"></span>${status}</span></td>
+        </tr>`;
+      }).join('');
+
+      // row click → drawer
+      tbody.querySelectorAll('tr[data-key]').forEach(tr => {
+        tr.addEventListener('click', () => {
+          const key = tr.dataset.key;
+          const row = allRows.find(r => rowKey(r) === key);
+          if (row) openDrawer(row);
+        });
+      });
+
+      updateNavBadge();
+    }
+
+    // ── stats ─────────────────────────────────────────────────────────────────
+    function updateStats() {
+      const total  = allRows.length;
+      const open   = allRows.filter(r => getStatus(r) === 'Open').length;
+      const urgent = allRows.filter(r => ['Critical','High'].includes(r[COL.priority])).length;
+      const done   = allRows.filter(r => ['Done','Closed'].includes(getStatus(r))).length;
+
+      document.getElementById('stat-total').textContent  = total;
+      document.getElementById('stat-open').textContent   = open;
+      document.getElementById('stat-urgent').textContent = urgent;
+      document.getElementById('stat-done').textContent   = done;
+    }
+
+    function updateNavBadge() {
+      const open = allRows.filter(r => getStatus(r) === 'Open').length;
+      const badge = document.getElementById('nav-open-count');
+      badge.textContent = open || '0';
+    }
+
+    // ── drawer ────────────────────────────────────────────────────────────────
+    function openDrawer(row) {
+      activeRow = row;
+      const status = getStatus(row);
+
+      document.getElementById('drawer-title').textContent = row[COL.name] || 'Request';
+      document.getElementById('drawer-badges').innerHTML =
+        `<span class="badge ${priorityClass(row[COL.priority])}">${escH(row[COL.priority])}</span>
+         <span class="badge ${typeClass(row[COL.type])}">${escH(row[COL.type])}</span>`;
+
+      const fields = [
+        ['Team',            row[COL.team]],
+        ['System affected', row[COL.system]],
+        ['Needed by',       row[COL.neededBy]],
+        ['Submitted',       formatDate(row[COL.ts])],
+        ['Description',     row[COL.desc]],
+        ['Steps tried',     row[COL.steps]],
+        ['Attachments',     row[COL.attach]],
+      ];
+
+      document.getElementById('drawerBody').innerHTML = fields.map(([label, val]) => {
+        if (!val) return '';
+        const isLong = val.length > 80;
+        const isLink = val.startsWith('http');
+        let display = isLink
+          ? `<a href="${escH(val)}" target="_blank" style="color:var(--accent)">${escH(val)}</a>`
+          : `<span class="${isLong ? 'detail-value pre' : 'detail-value'}">${escH(val)}</span>`;
+        return `<div class="detail-row"><div class="detail-label">${label}</div>${display}</div>`;
+      }).join('');
+
+      // highlight active status btn
+      document.querySelectorAll('.status-btn').forEach(b => {
+        b.classList.toggle('active', b.dataset.s === status);
+      });
+
+      document.getElementById('drawer').classList.add('open');
+      document.getElementById('drawerOverlay').classList.add('open');
+    }
+
+    function closeDrawer() {
+      document.getElementById('drawer').classList.remove('open');
+      document.getElementById('drawerOverlay').classList.remove('open');
+      activeRow = null;
+    }
+
+    document.getElementById('drawerClose').addEventListener('click', closeDrawer);
+    document.getElementById('drawerOverlay').addEventListener('click', closeDrawer);
+
+    // status buttons
+    document.querySelectorAll('.status-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        if (!activeRow) return;
+        const key = rowKey(activeRow);
+        const newStatus = btn.dataset.s;
+        statusMap[key] = newStatus;
+        localStorage.setItem('oc_status', JSON.stringify(statusMap));
+        document.querySelectorAll('.status-btn').forEach(b => b.classList.toggle('active', b.dataset.s === newStatus));
+        renderAll();
+        updateStats();
+        showToast('Status updated to ' + newStatus, 'success');
+      });
+    });
+
+    // ── nav filter by status ──────────────────────────────────────────────────
+    document.querySelectorAll('[data-filter-status]').forEach(item => {
+      item.addEventListener('click', () => {
+        document.querySelectorAll('[data-filter-status]').forEach(i => i.classList.remove('active'));
+        item.classList.add('active');
+        document.querySelector('[data-page="dashboard"]').classList.add('active');
+        activeStatusFilter = item.dataset.filterStatus === 'all' ? '' : item.dataset.filterStatus;
+        document.getElementById('filterStatus').value = '';
+        renderAll();
+        document.getElementById('page-title').textContent =
+          item.dataset.filterStatus === 'all' ? 'All Requests' :
+          item.dataset.filterStatus + ' Requests';
+      });
+    });
+
+    document.querySelector('[data-page="dashboard"]').addEventListener('click', () => {
+      document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+      document.querySelector('[data-page="dashboard"]').classList.add('active');
+      activeStatusFilter = '';
+      document.getElementById('filterStatus').value = '';
+      renderAll();
+      document.getElementById('page-title').textContent = 'Dashboard';
+    });
+
+    // ── sorting ───────────────────────────────────────────────────────────────
+    document.querySelectorAll('th[data-col]').forEach(th => {
+      th.addEventListener('click', () => {
+        const col = +th.dataset.col;
+        if (sortCol === col) sortAsc = !sortAsc;
+        else { sortCol = col; sortAsc = true; }
+        document.querySelectorAll('th').forEach(t => {
+          t.classList.remove('sorted');
+          const icon = t.querySelector('.sort-icon');
+          if (icon) icon.textContent = '↕';
+        });
+        th.classList.add('sorted');
+        const icon = th.querySelector('.sort-icon');
+        if (icon) icon.textContent = sortAsc ? '↑' : '↓';
+        renderAll();
+      });
+    });
+
+    // ── filter listeners ──────────────────────────────────────────────────────
+    ['searchInput','filterPriority','filterType','filterStatus'].forEach(id => {
+      document.getElementById(id).addEventListener('input', renderAll);
+      document.getElementById(id).addEventListener('change', renderAll);
+    });
+
+    document.getElementById('refreshBtn').addEventListener('click', fetchData);
+
+    // ── mobile nav ────────────────────────────────────────────────────────────
+    document.getElementById('mobToggle').addEventListener('click', () => {
+      document.getElementById('sidebar').classList.toggle('mob-open');
+    });
+
+    // ── helpers ───────────────────────────────────────────────────────────────
+    function priorityClass(p) {
+      return { 'Low':'badge-low', 'Medium':'badge-medium', 'High':'badge-high', 'Critical':'badge-critical' }[p] || 'badge-other';
+    }
+    function typeClass(t) {
+      return { 'Debug':'badge-debug', 'Troubleshoot':'badge-troubleshoot', 'One-time task':'badge-onetimetask', 'Other':'badge-other' }[t] || 'badge-other';
+    }
+    function statusClass(s) {
+      return { 'Open':'s-open', 'In Progress':'s-inprogress', 'Done':'s-done', 'Closed':'s-closed' }[s] || 's-open';
+    }
+    function formatDate(ts) {
+      if (!ts) return '—';
+      const d = new Date(ts);
+      return isNaN(d) ? ts : d.toLocaleDateString('en-US', { month:'short', day:'numeric', year:'numeric' });
+    }
+    function escH(s) {
+      return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    }
+    function showToast(msg, type = '') {
+      const t = document.getElementById('toast');
+      t.textContent = msg;
+      t.className = `toast ${type} show`;
+      setTimeout(() => t.classList.remove('show'), 3500);
+    }
+
+    // ── init ──────────────────────────────────────────────────────────────────
+    fetchData();
+  </script>
+</body>
+</html>
